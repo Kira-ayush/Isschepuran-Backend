@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\CtaBand;
+use App\Models\Hero;
 use App\Models\ImpactStat;
 use App\Models\Initiative;
+use App\Models\SectionHeading;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use Illuminate\Database\Seeder;
@@ -18,6 +21,31 @@ class HomePageSeeder extends Seeder
 {
     public function run(): void
     {
+        Hero::current()->update([
+            'eyebrow' => 'Reforestation · Water · Education',
+            'headline' => "Restoring Earth,\nEmpowering Communities",
+            'subheading' => 'A philanthropic endeavor dedicated to reforestation, water conservation, and quality education for underserved children across eastern India.',
+            'primary_cta_label' => 'Donate Now',
+            'primary_cta_href' => '/get-involved#donate',
+            'secondary_cta_label' => 'Our Mission',
+            'secondary_cta_href' => '/about',
+        ]);
+
+        CtaBand::current()->update([
+            'heading' => 'Join the Movement for a Greener Planet',
+            'subheading' => 'Your contribution directly funds the planting of saplings, the education of children, and the restoration of our precious ecosystems. Every wish matters.',
+            'primary_cta_label' => 'Donate Now',
+            'primary_cta_href' => '/get-involved#donate',
+            'secondary_cta_label' => 'Volunteer',
+            'secondary_cta_href' => '/get-involved#volunteer',
+        ]);
+
+        SectionHeading::forKey('pillars', 'What we do', 'Our Core Pillars')
+            ->update(['eyebrow' => 'What we do', 'heading' => 'Our Core Pillars']);
+
+        SectionHeading::forKey('testimonials', 'Voices of impact', 'Real stories from the communities we serve')
+            ->update(['eyebrow' => 'Voices of impact', 'heading' => 'Real stories from the communities we serve']);
+
         SiteSetting::current()->update([
             'org_name' => 'Ichhe Puran',
             'tagline' => 'Nurturing nature, restoring ecosystems, and empowering communities through transparent philanthropy.',

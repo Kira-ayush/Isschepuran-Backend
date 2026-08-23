@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\SectionHeadingResource;
+use App\Models\SectionHeading;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+class SectionHeadingController extends Controller
+{
+    // Known keys and their fallback defaults if an admin hasn't edited them
+    // yet — keep in sync with the SectionHeadingWidget instances that
+    // register each key (see InitiativeResource/TestimonialResource list pages).
+    private const DEFAULTS = [
+        'pillars' => ['eyebrow' => 'What we do', 'heading' => 'Our Core Pillars'],
+        'testimonials' => ['eyebrow' => 'Voices of impact', 'heading' => 'Real stories from the communities we serve'],
+    ];
+
+    // GET /api/v1/section-headings/{key}
+    public function show(string $key)
+    {
+        if (! isset(self::DEFAULTS[$key])) {
+            throw new NotFoundHttpException();
+        }
+
+        $defaults = self::DEFAULTS[$key];
+
+        return new SectionHeadingResource(
+            SectionHeading::forKey($key, $defaults['eyebrow'], $defaults['heading'])
+        );
+    }
+}

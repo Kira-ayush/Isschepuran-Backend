@@ -18,7 +18,7 @@ class InitiativeResource extends Resource
 {
     protected static ?string $model = Initiative::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-sparkles';
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Home Page';
     protected static ?string $navigationLabel = 'Initiatives / Pillars';
 
     public static function form(Schema $schema): Schema

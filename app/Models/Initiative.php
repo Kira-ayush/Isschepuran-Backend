@@ -22,7 +22,7 @@ class Initiative extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('image')->singleFile();
+        $this->addMediaCollection('image')->singleFile()->useDisk('public');
     }
 
     public function scopePublished($query)

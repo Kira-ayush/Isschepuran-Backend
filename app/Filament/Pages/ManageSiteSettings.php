@@ -7,6 +7,7 @@ use BackedEnum;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
@@ -33,20 +34,20 @@ class ManageSiteSettings extends Page
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            Forms\Components\Section::make('Organization')
+            Section::make('Organization')
                 ->schema([
                     Forms\Components\TextInput::make('org_name')->required(),
                     Forms\Components\Textarea::make('tagline')->required()->rows(2),
                 ]),
 
-            Forms\Components\Section::make('Contact')
+            Section::make('Contact')
                 ->schema([
                     Forms\Components\TextInput::make('phone')->tel()->required(),
                     Forms\Components\TextInput::make('email')->email()->required(),
                     Forms\Components\Textarea::make('address')->required()->rows(2),
                 ]),
 
-            Forms\Components\Section::make('Navigation')
+            Section::make('Navigation')
                 ->schema([
                     Forms\Components\Repeater::make('nav_links')
                         ->schema([
@@ -58,7 +59,7 @@ class ManageSiteSettings extends Page
                         ->helperText('Controls the header + footer nav — add, remove, or reorder pages here without touching code.'),
                 ]),
 
-            Forms\Components\Section::make('Social & Donate')
+            Section::make('Social & Donate')
                 ->schema([
                     Forms\Components\Repeater::make('social_links')
                         ->schema([
