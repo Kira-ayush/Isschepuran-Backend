@@ -1,4 +1,5 @@
 # Backend Setup
+mysql -u root -h 127.0.0.1 -P 3306 -e "CREATE DATABASE IF NOT EXISTS icchepuran CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 This is a Laravel 13 + Filament v5 backend (API + admin CMS) for the Ichhe
 Puran website rebuild. This doc is the setup guide for a fresh clone, plus a
