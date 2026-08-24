@@ -10,7 +10,7 @@ class AboutIntro extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['origin_title', 'origin_body', 'established_year', 'vision', 'mission'];
+    protected $fillable = ['origin_title', 'origin_body', 'established_year', 'vision', 'mission', 'origin_image_alt'];
 
     public function registerMediaCollections(): void
     {

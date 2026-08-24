@@ -14,6 +14,7 @@ class Hero extends Model implements HasMedia
         'eyebrow', 'headline', 'subheading',
         'primary_cta_label', 'primary_cta_href',
         'secondary_cta_label', 'secondary_cta_href',
+        'background_alt',
     ];
 
     public function registerMediaCollections(): void

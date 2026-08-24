@@ -15,6 +15,7 @@ class AboutMilestoneResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'image' => $this->getFirstMediaUrl('image') ?: null,
+            'imageAlt' => $this->image_alt,
             'order' => $this->order,
         ];
     }

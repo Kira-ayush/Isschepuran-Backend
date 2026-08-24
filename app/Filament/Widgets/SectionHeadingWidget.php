@@ -44,7 +44,7 @@ class SectionHeadingWidget extends Widget implements HasSchemas
     public function mount(): void
     {
         $record = SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading);
-        $this->form->model($record)->fill($record->only(['eyebrow', 'heading']));
+        $this->form->model($record)->fill($record->only(['eyebrow', 'heading', 'image_alt']));
     }
 
     public function form(Schema $schema): Schema
@@ -58,6 +58,9 @@ class SectionHeadingWidget extends Widget implements HasSchemas
                 ->maxSize(10240)
                 ->helperText('Optional section image (most sections don\'t need one). Max file size: 10 MB.')
                 ->required(false),
+            Forms\Components\TextInput::make('image_alt')
+                ->label('Image alt text')
+                ->helperText('Describes the image for screen readers and search engines.'),
         ])->statePath('data');
     }
 

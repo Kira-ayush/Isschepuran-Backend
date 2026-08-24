@@ -10,7 +10,7 @@ class AboutMilestone extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['year', 'title', 'description', 'order', 'is_published'];
+    protected $fillable = ['year', 'title', 'description', 'image_alt', 'order', 'is_published'];
 
     protected $casts = [
         'is_published' => 'boolean',

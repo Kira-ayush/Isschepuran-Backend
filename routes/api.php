@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\InitiativeController;
 use App\Http\Controllers\Api\InitiativesHeroController;
 use App\Http\Controllers\Api\PillarController;
 use App\Http\Controllers\Api\SectionHeadingController;
+use App\Http\Controllers\Api\SeoSettingController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\TestimonialController;
@@ -35,6 +36,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/testimonials', [TestimonialController::class, 'index']);
     Route::get('/cta-band', [CtaBandController::class, 'show']);
     Route::get('/section-headings/{key}', [SectionHeadingController::class, 'show']);
+    Route::get('/seo-settings/{key}', [SeoSettingController::class, 'show']);
 
     // About page
     Route::get('/about-hero', [AboutHeroController::class, 'show']);

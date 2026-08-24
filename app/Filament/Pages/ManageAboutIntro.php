@@ -48,6 +48,9 @@ class ManageAboutIntro extends Page
                         ->image()
                         ->maxSize(10240)
                         ->helperText('Photo shown alongside the origin story. Max file size: 10 MB.'),
+                    Forms\Components\TextInput::make('origin_image_alt')
+                        ->label('Origin photo alt text')
+                        ->helperText('Describes the photo for screen readers and search engines.'),
                 ]),
 
             Section::make('Vision & Mission')

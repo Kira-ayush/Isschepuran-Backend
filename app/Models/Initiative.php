@@ -12,7 +12,7 @@ class Initiative extends Model implements HasMedia
     use InteractsWithMedia;
 
     protected $fillable = [
-        'title', 'category_id', 'slug', 'summary', 'body',
+        'title', 'category_id', 'slug', 'summary', 'body', 'image_alt',
         'icon', 'order', 'is_published', 'featured_on_home',
     ];
 

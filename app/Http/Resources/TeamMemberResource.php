@@ -15,6 +15,7 @@ class TeamMemberResource extends JsonResource
             'role' => $this->role,
             'bio' => $this->bio,
             'photo' => $this->getFirstMediaUrl('photo') ?: null,
+            'photoAlt' => $this->photo_alt,
             'order' => $this->order,
         ];
     }

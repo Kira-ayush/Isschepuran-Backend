@@ -37,6 +37,9 @@ class AboutMilestoneResource extends Resource
                 ->maxSize(10240)
                 ->helperText('Optional photo for this milestone. Max file size: 10 MB.')
                 ->required(false),
+            Forms\Components\TextInput::make('image_alt')
+                ->label('Photo alt text')
+                ->helperText('Describes the photo for screen readers and search engines.'),
             Forms\Components\TextInput::make('order')->numeric()->default(0),
             Forms\Components\Toggle::make('is_published')->default(true),
         ]);

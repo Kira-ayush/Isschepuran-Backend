@@ -10,7 +10,7 @@ class Testimonial extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['quote', 'name', 'role', 'order', 'is_published'];
+    protected $fillable = ['quote', 'name', 'role', 'photo_alt', 'order', 'is_published'];
 
     protected $casts = [
         'is_published' => 'boolean',

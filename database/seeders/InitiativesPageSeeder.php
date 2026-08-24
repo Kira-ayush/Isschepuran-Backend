@@ -40,12 +40,14 @@ class InitiativesPageSeeder extends Seeder
                 'title' => 'Urban Miyawaki', 'category_id' => $categoryIds['environment'], 'slug' => 'urban-miyawaki',
                 'summary' => 'Creating dense, native urban forests that grow 10x faster and are 30x more dense than traditional plantations.',
                 'body' => 'Creating dense, native urban forests that grow 10x faster and are 30x more dense than traditional plantations. Perfect for revitalizing city micro-climates.',
+                'image_alt' => 'A dense Miyawaki-method urban forest plot in a city.',
                 'icon' => 'TreePine', 'order' => 4, 'featured_on_home' => false,
             ],
             [
                 'title' => 'Agroforestry', 'category_id' => $categoryIds['environment'], 'slug' => 'agroforestry',
                 'summary' => 'Integrating trees into farming systems to boost biodiversity and improve soil health.',
                 'body' => 'Integrating trees into farming systems to boost biodiversity, improve soil health, and provide sustainable alternative incomes for rural farmers. This initiative creates a resilient ecosystem where agriculture and nature thrive together.',
+                'image_alt' => 'Farmland with rows of trees interplanted among crops.',
                 'icon' => 'Sprout', 'order' => 5, 'featured_on_home' => false,
             ],
             [

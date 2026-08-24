@@ -10,7 +10,7 @@ class SectionHeading extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['key', 'eyebrow', 'heading'];
+    protected $fillable = ['key', 'eyebrow', 'heading', 'image_alt'];
 
     public function registerMediaCollections(): void
     {

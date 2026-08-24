@@ -50,6 +50,9 @@ class InitiativeResource extends Resource
                 ->image()
                 ->maxSize(10240)
                 ->helperText('Real project photography — see the project doc\'s note on avoiding AI-generated "documentation" images. Max file size: 10 MB.'),
+            Forms\Components\TextInput::make('image_alt')
+                ->label('Photo alt text')
+                ->helperText('Describes the photo for screen readers and search engines, e.g. "Volunteers planting saplings along a riverbank."'),
             Forms\Components\TextInput::make('icon')
                 ->helperText('lucide-react icon name, e.g. "TreePine", "Droplets", "BookOpen"'),
             Forms\Components\Toggle::make('featured_on_home')

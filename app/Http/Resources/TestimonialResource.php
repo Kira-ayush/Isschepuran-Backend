@@ -15,6 +15,7 @@ class TestimonialResource extends JsonResource
             'name' => $this->name,
             'role' => $this->role,
             'photo' => $this->getFirstMediaUrl('photo') ?: null,
+            'photoAlt' => $this->photo_alt,
             'order' => $this->order,
         ];
     }

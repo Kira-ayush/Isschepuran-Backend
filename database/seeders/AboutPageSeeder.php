@@ -36,6 +36,7 @@ class AboutPageSeeder extends Seeder
             'established_year' => 2021,
             'vision' => 'To create a world where every community thrives in harmony with a restored environment, where green canopies shelter every home and education is the birthright of every child.',
             'mission' => 'To empower vulnerable coastal communities through climate-resilient livelihoods, education, and direct environmental stewardship.',
+            'origin_image_alt' => 'Cyclone relief volunteers distributing aid in the Sundarbans after Cyclone Yaas.',
         ]);
 
         $reach = [
@@ -62,8 +63,8 @@ class AboutPageSeeder extends Seeder
         }
 
         $team = [
-            ['name' => 'Gargee Das Mondal', 'role' => 'Social Work', 'order' => 1],
-            ['name' => 'Netai Mondal', 'role' => 'Post Treasurer & Senior Operations Manager', 'order' => 2],
+            ['name' => 'Gargee Das Mondal', 'role' => 'Social Work', 'photo_alt' => 'Portrait of Gargee Das Mondal, Social Work.', 'order' => 1],
+            ['name' => 'Netai Mondal', 'role' => 'Post Treasurer & Senior Operations Manager', 'photo_alt' => 'Portrait of Netai Mondal, Post Treasurer & Senior Operations Manager.', 'order' => 2],
         ];
         foreach ($team as $t) {
             TeamMember::updateOrCreate(['name' => $t['name']], $t);

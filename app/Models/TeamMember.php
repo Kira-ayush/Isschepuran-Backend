@@ -10,7 +10,7 @@ class TeamMember extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['name', 'role', 'bio', 'order', 'is_published'];
+    protected $fillable = ['name', 'role', 'bio', 'photo_alt', 'order', 'is_published'];
 
     protected $casts = [
         'is_published' => 'boolean',

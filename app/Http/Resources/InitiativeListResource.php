@@ -23,6 +23,7 @@ class InitiativeListResource extends JsonResource
             'summary' => $this->summary,
             'body' => $this->body,
             'image' => $this->getFirstMediaUrl('image') ?: null,
+            'imageAlt' => $this->image_alt,
             'icon' => $this->icon,
             'order' => $this->order,
         ];

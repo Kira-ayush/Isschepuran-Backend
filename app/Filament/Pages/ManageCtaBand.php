@@ -8,17 +8,18 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
-use UnitEnum;
 
 /**
  * A singleton settings page (not a Resource — there is only ever one
- * CtaBand row) for the Home page's closing "Join the Movement" band.
+ * CtaBand row) for the closing "Join the Movement" band shown at the
+ * bottom of every page (Home, About, Initiatives, and any future page),
+ * not just Home — so it deliberately sits outside every page-specific nav
+ * group, same as ManageSiteSettings.
  */
 class ManageCtaBand extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-megaphone';
     protected static ?string $navigationLabel = 'CTA Band';
-    protected static string|UnitEnum|null $navigationGroup = 'Home Page';
     protected static ?string $slug = 'cta-band';
     protected string $view = 'filament.pages.manage-cta-band';
 

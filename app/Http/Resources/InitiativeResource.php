@@ -15,6 +15,7 @@ class InitiativeResource extends JsonResource
             'category' => new CategoryResource($this->category),
             'summary' => $this->summary,
             'image' => $this->getFirstMediaUrl('image') ?: null,
+            'imageAlt' => $this->image_alt,
             'icon' => $this->icon,
             'order' => $this->order,
         ];

@@ -53,6 +53,9 @@ class ManageHero extends Page
                 ->image()
                 ->maxSize(10240)
                 ->helperText('Full-bleed background photo behind the hero text. Max file size: 10 MB.'),
+            Forms\Components\TextInput::make('background_alt')
+                ->label('Background image alt text')
+                ->helperText('Describes the photo for screen readers and search engines, e.g. "Volunteers planting mangrove saplings at sunrise."'),
         ])->statePath('data');
     }
 

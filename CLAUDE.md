@@ -105,10 +105,19 @@ needs this same flag.
 
 ## What's built
 
-**Home** (6 types): `SiteSetting` (site-wide, singleton), `Hero` (singleton,
-has CTAs + background image), `ImpactStat`, `Initiative` (pillars — has
-`category_id` FK + `featured_on_home` bool — see `Category` below, this was
-originally a fixed enum), `Testimonial`, `CtaBand` (singleton).
+**Site-wide** (not page-scoped, so both sit outside every page-specific nav
+group — same reasoning as `SeoSetting` above): `SiteSetting` (org info,
+contact, nav links, social links, donate destination) and `CtaBand` (the
+closing "Join the Movement" band shown at the bottom of every page — it
+used to live under the "Home Page" nav group since Home was the first page
+built, but moved out once About and Initiatives started rendering it too;
+if a future page also needs it, no change required, it already applies
+everywhere).
+
+**Home** (4 types): `Hero` (singleton, has CTAs + background image),
+`ImpactStat`, `Initiative` (pillars — has `category_id` FK +
+`featured_on_home` bool — see `Category` below, this was originally a
+fixed enum), `Testimonial`.
 
 **About** (6 types): `AboutHero` (singleton, no CTAs — matches actual source
 content), `AboutIntro` (singleton — origin story + vision/mission),
@@ -175,7 +184,55 @@ finalize migration, before the `NOT NULL` change. MySQL also doesn't run
 migrations transactionally, so a failed finalize migration can leave the
 table in a partially-changed state (in our case the enum column was already
 dropped when the FK-constraint step failed) — check the actual schema
-(`DESCRIBE table`) before assuming a failed migration changed nothing.
+(`DESCRIBE table`) before assuming a failed migration changed nothing. **This
+bit us for real**: the finalize migration's `up()` originally only handled
+the FK/`NOT NULL` change and never explicitly dropped the old `category`
+column — it "worked" on the production MySQL DB only because that column had
+already been dropped as a side effect of an earlier failed attempt (see
+above). A from-scratch migrate (a fresh dev machine, or the test suite's
+`RefreshDatabase` against SQLite) still had the original NOT NULL enum
+column and failed every `Initiative::create()`. Fixed by adding an explicit
+`if (Schema::hasColumn(...)) { dropColumn(...) }` guard to that migration's
+`up()`. Lesson: after any migration sequence where one step's success
+depends on state left behind by an earlier *failed* run, re-verify it also
+works against a genuinely fresh database, not just the already-patched one.
+
+**Per-page SEO Settings** — a dedicated admin screen per top-level page
+(`ManageHomeSeo`, `ManageAboutSeo`, `ManageInitiativesSeo` — nav label "SEO
+Settings" under each page's existing nav group), on top of the
+`generateMetadata()`-from-content-fields approach already in place. Backed
+by one generic `SeoSetting` model (`meta_title`, `meta_description`,
+`og_title`, `og_description`, `og_image` media collection, `twitter_title`,
+`twitter_description`, `twitter_image` media collection), keyed by a fixed
+page key (`home`/`about`/`initiatives`) the same way `SectionHeading` is
+keyed — `SeoSetting::forKey($key)`. All three Page classes share their
+form/mount/save via one trait, `App\Filament\Pages\Concerns\ManagesSeoSettings`
+(`abstract public function seoKey(): string` is the only thing each concrete
+page implements) — this is the one place in the codebase that departs from
+the usual "copy-paste a whole singleton Page class" convention, because
+these three are genuinely byte-for-byte identical apart from the key/nav
+properties. `GET /api/v1/seo-settings/{key}` uses an allowlist
+(`SeoSettingController::KEYS`) exactly like `SectionHeadingController::DEFAULTS`
+— add the new key there (and to the trait's usage) before wiring up SEO
+Settings for a future page. **Every field is optional and every field
+individually falls back** on the frontend to that page's own
+content-derived title/description/image when unset (see
+`frontend/src/lib/seo.ts`) — an admin can override just the OG image while
+leaving everything else on defaults. Canonical URL is deliberately NOT a
+field on this model — see the frontend section for why.
+
+**Alt text fields** — every image-bearing content type (`Hero.background_alt`,
+`AboutIntro.origin_image_alt`, `AboutMilestone.image_alt`, `Initiative.image_alt`,
+`SectionHeading.image_alt`, `TeamMember.photo_alt`, `Testimonial.photo_alt`)
+has a plain nullable `string` column alongside its media collection, editable
+via a `TextInput` right after the corresponding `SpatieMediaLibraryFileUpload`
+field, and exposed on the matching Http Resource as a camelCase key
+(`backgroundImageAlt`, `originImageAlt`, `imageAlt`, `photoAlt`). Unlike the
+media field itself, alt-text columns are plain mass-assignable fields — they
+do NOT need `unset($state[...])` before `->update($state)`/`saveRelationships()`
+in a custom Page/Widget's `save()`, only the upload field's own key does.
+When adding a new image field to any content type, add its `_alt` sibling
+column in the same migration rather than bolting it on later.
 
 Plus the generic `SectionHeading` (see above) powering section titles on
 every list-style resource across both pages. `SectionHeading` also supports

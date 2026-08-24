@@ -17,6 +17,7 @@ class SectionHeadingResource extends JsonResource
             'eyebrow' => $this->eyebrow,
             'heading' => $this->heading,
             'image' => $this->getFirstMediaUrl('image') ?: null,
+            'imageAlt' => $this->image_alt,
         ];
     }
 }

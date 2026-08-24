@@ -22,6 +22,7 @@ class HeroResource extends JsonResource
             'secondaryCtaLabel' => $this->secondary_cta_label,
             'secondaryCtaHref' => $this->secondary_cta_href,
             'backgroundImage' => $this->getFirstMediaUrl('background') ?: null,
+            'backgroundImageAlt' => $this->background_alt,
         ];
     }
 }

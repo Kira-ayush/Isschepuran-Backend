@@ -32,6 +32,7 @@ class HomePageSeeder extends Seeder
             'primary_cta_href' => '/get-involved#donate',
             'secondary_cta_label' => 'Our Mission',
             'secondary_cta_href' => '/about',
+            'background_alt' => 'Volunteers planting saplings in a restored coastal forest at sunrise.',
         ]);
 
         CtaBand::current()->update([
@@ -81,16 +82,19 @@ class HomePageSeeder extends Seeder
             [
                 'title' => 'Tree Plantation', 'category_id' => $categoryIds['environment'], 'slug' => 'tree-plantation',
                 'summary' => 'Restoring biodiversity by planting native species across degraded forest lands and urban centers.',
+                'image_alt' => 'Volunteers planting young saplings in a degraded forest clearing.',
                 'icon' => 'TreePine', 'order' => 1, 'featured_on_home' => true,
             ],
             [
                 'title' => 'Water Restoration', 'category_id' => $categoryIds['water'], 'slug' => 'water-restoration',
                 'summary' => 'Desilting ponds, harvesting rainwater, and ensuring sustainable clean water access for remote villages.',
+                'image_alt' => 'A restored village pond used for clean water access.',
                 'icon' => 'Droplets', 'order' => 2, 'featured_on_home' => true,
             ],
             [
                 'title' => 'Holistic Education', 'category_id' => $categoryIds['community'], 'slug' => 'holistic-education',
                 'summary' => 'Providing modern curriculum, digital literacy, and life skills training to bridge the urban-rural divide.',
+                'image_alt' => 'Children in a rural classroom during a digital literacy session.',
                 'icon' => 'BookOpen', 'order' => 3, 'featured_on_home' => true,
             ],
         ];
@@ -102,10 +106,12 @@ class HomePageSeeder extends Seeder
             [
                 'name' => 'Saraswati Devi', 'role' => 'Community Leader, West Bengal', 'order' => 1,
                 'quote' => 'The water restoration project changed everything for our village. We no longer walk 5 miles for water, and our children spend that time in the new school Ichhe Puran built.',
+                'photo_alt' => 'Portrait of Saraswati Devi, Community Leader in West Bengal.',
             ],
             [
                 'name' => 'Rahul Mondal', 'role' => 'Scholarship Recipient', 'order' => 2,
                 'quote' => 'I want to be an environmental engineer. The scholarship and the digital classes helped me dream beyond my small village. Now I know I can make a difference.',
+                'photo_alt' => 'Portrait of Rahul Mondal, scholarship recipient.',
             ],
         ];
         foreach ($testimonials as $t) {

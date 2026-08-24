@@ -41,6 +41,9 @@ class TeamMemberResource extends Resource
                     . 'Max file size: 10 MB.'
                 )
                 ->required(false),
+            Forms\Components\TextInput::make('photo_alt')
+                ->label('Photo alt text')
+                ->helperText('Describes the photo for screen readers and search engines, e.g. "Portrait of [Name], [Role]."'),
             Forms\Components\TextInput::make('order')->numeric()->default(0),
             Forms\Components\Toggle::make('is_published')->default(true),
         ]);

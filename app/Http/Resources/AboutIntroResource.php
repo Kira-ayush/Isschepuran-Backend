@@ -16,6 +16,7 @@ class AboutIntroResource extends JsonResource
             'vision' => $this->vision,
             'mission' => $this->mission,
             'originImage' => $this->getFirstMediaUrl('origin_image') ?: null,
+            'originImageAlt' => $this->origin_image_alt,
         ];
     }
 }
