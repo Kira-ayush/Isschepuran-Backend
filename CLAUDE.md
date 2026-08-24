@@ -313,6 +313,26 @@ manual admin entry) plus the 4 write-form resources — "data the site
 collects," a different kind of admin screen from every other nav group
 ("content the admin authors").
 
+**Admin panel branding + Dashboard widget** — `AdminPanelProvider::panel()`
+sets `->brandName('Ichhe Puran')` (Filament defaults to "Laravel" on both
+the login page and sidebar if this isn't set — easy to miss since nothing
+errors, it just looks unbranded). The stock `Dashboard` page's default
+`FilamentInfoWidget` (Filament's own version/GitHub links — meaningless to
+a content admin, and the reason the dashboard looked "blank/dull" before
+this) was swapped for a hand-written `App\Filament\Widgets\SubmissionsOverviewWidget`
+(extends `StatsOverviewWidget`, six `Stat::make()` cards: new Volunteer
+Applications, new CSR Inquiries, unread Contact Messages, Newsletter
+Subscribers, Pending Donations, Total Raised — each links via `->url()` to
+its Submissions resource) registered in `->widgets([AccountWidget::class,
+SubmissionsOverviewWidget::class])`, replacing `FilamentInfoWidget::class`.
+`php artisan make:filament-widget --stats-overview` hangs on an interactive
+panel-selection prompt in a non-interactive shell — faster to read
+`vendor/filament/widgets/src/StatsOverviewWidget.php` directly and
+hand-write the class than fight the scaffold command. Verified via
+Playwright screenshot logged in as a throwaway admin user (deleted after) —
+not just a render-test, since the whole point was checking the *visual*
+result, not just that the page returns 200.
+
 **Email notifications were deliberately not built** for any of this (the
 4 write forms or the donation receipt) — an explicit user decision, not an
 oversight. Submissions are visible only via the admin panel's Submissions
