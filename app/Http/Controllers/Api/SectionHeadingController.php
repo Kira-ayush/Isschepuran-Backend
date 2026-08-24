@@ -24,6 +24,9 @@ class SectionHeadingController extends Controller
         'sdg-alignment' => ['eyebrow' => 'Global commitments', 'heading' => 'Aligned with the UN Sustainable Development Goals'],
         'csr-synergy' => ['eyebrow' => 'Partner with purpose', 'heading' => 'Corporate Social Synergy'],
         'gallery-items' => ['eyebrow' => 'Moments from the field', 'heading' => 'Our Gallery'],
+        'donation-methods' => ['eyebrow' => 'Ways to give', 'heading' => 'Choose How to Give'],
+        'volunteer' => ['eyebrow' => 'Give your time', 'heading' => 'Volunteer With Us'],
+        'csr-partnership' => ['eyebrow' => 'Partner with purpose', 'heading' => 'CSR & Corporate Partnerships'],
     ];
 
     // GET /api/v1/section-headings/{key}

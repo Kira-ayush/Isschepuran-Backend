@@ -37,6 +37,9 @@ class AdminPanelProvider extends PanelProvider
                 'Initiatives Page',
                 'Impact Page',
                 'Gallery Page',
+                'Get Involved Page',
+                'Contact Page',
+                'Submissions',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

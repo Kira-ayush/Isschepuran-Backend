@@ -248,6 +248,82 @@ guarded with `is_file($path)` (skips + logs a warning rather than crashing
 idempotent on re-run (`getMedia('image')->isNotEmpty()` skip check). Any
 future seeder needing to attach a real file can copy this pattern.
 
+**Get Involved / Contact** (9 new types, plus the first public write
+endpoints, first payment integration, and first encrypted secrets in this
+project): `GetInvolvedHero`/`ContactHero` (same minimal singleton shape as
+every other hero). `DonationMethod` (static bank/UPI/international
+details — real content, seeded from `docs/raw-site-content.md`; distinct
+from the Razorpay integration below). `PaymentSetting` — singleton,
+Razorpay `key_id`/`key_secret`/`webhook_secret` entered via the admin
+panel (`ManagePaymentSettings`), **not `.env`**, so the client can
+self-serve their own credentials without a developer redeploying.
+`key_secret`/`webhook_secret` use Laravel's `'field' => 'encrypted'` cast
+— first use of it in this project — and the migration column type is
+**`text`, not `string(255)`**: encrypted output (AES-256-CBC + base64) is
+well over 255 chars even for a short secret, a first-use gotcha worth
+remembering for any future encrypted field. These two fields must **never**
+appear in any public API Resource — `create-order`'s own JSON response
+returns `keyId` directly (the public key Checkout.js needs client-side)
+instead of a public settings endpoint ever existing.
+
+`Donation` tracks the actual Razorpay payment lifecycle
+(`pending|paid|failed|refunded`), created at `create-order` time and
+flipped by **either** `DonationController::verify()` (the client-side
+round-trip after Checkout completes) **or** `RazorpayWebhookController`
+(Razorpay's own server-to-server event feed) — both idempotent, order
+doesn't matter, since the webhook exists specifically to bring a
+`Donation` to its correct final state even when the browser closes before
+`verify()` fires. **These are two genuinely different signature checks**
+using the official `razorpay/razorpay` SDK: `Utility::verifyPaymentSignature()`
+(the 3-field order/payment/signature check, needs `Api::getSecret()`
+populated by constructing `new Api($key, $secret)` first — `Utility`
+pulls the secret from `Api`'s static state, not a constructor arg) for
+`verify()`, vs. `Utility::verifyWebhookSignature($rawBody, $signature, $webhookSecret)`
+(raw-request-body HMAC) for the webhook — treating these as interchangeable
+is a common real integration bug. Amounts are stored in **rupees** in
+`donations.amount` (human-readable in the admin table) and converted to
+**paise** only at the `$api->order->create()` call boundary
+(`(int) round($amount * 100)`) — the single most common real Razorpay bug.
+Verified end-to-end against Razorpay's real test-mode API (not mocked):
+a real order created, a hand-computed valid signature accepted, an
+invalid one rejected with the donation marked `failed`, and the webhook
+path independently verified the same way with its own signature scheme.
+
+`VolunteerApplication`/`CsrInquiry`/`ContactSubmission`/`NewsletterSubscriber`
+are the first public POST endpoints in this project — validated via
+`FormRequest` classes (first use of those too), camelCase request bodies
+mapped explicitly to snake_case columns in each controller. All 6 public
+write routes (these 4 plus `donations/create-order`+`verify`) share a
+**named** rate limiter (`RateLimiter::for('public-forms', ...)` in
+`AppServiceProvider::boot()`), not the bare `throttle:5,1` shorthand —
+that shorthand keys by IP+domain only
+(`Illuminate\Routing\Middleware\ThrottleRequests::resolveRequestSignature()`),
+so every route sharing that middleware would draw from **one pooled
+bucket per IP** instead of each endpoint getting its own 5/minute limit —
+confirmed by testing (a burst against one endpoint was incorrectly
+blocking submissions to a completely different endpoint until this was
+keyed by `IP + request path` instead). The Razorpay webhook sits outside
+this limiter entirely, with its own looser `throttle:60,1`, since it's
+server-to-server from Razorpay and shouldn't share a budget with public
+form traffic — bundling it in risks 429-ing Razorpay's own retry bursts.
+
+New Filament nav group **`"Submissions"`** houses `Donation` (no `create`
+page — donations only ever originate from the Razorpay flow, never a
+manual admin entry) plus the 4 write-form resources — "data the site
+collects," a different kind of admin screen from every other nav group
+("content the admin authors").
+
+**Email notifications were deliberately not built** for any of this (the
+4 write forms or the donation receipt) — an explicit user decision, not an
+oversight. Submissions are visible only via the admin panel's Submissions
+nav group. If this gets added later: this project's `QUEUE_CONNECTION` is
+set to `database` in `.env`, but **no `jobs` table migration exists
+anywhere** — don't assume `Mail::...->queue()` "just works" because the
+env var is set; either run `php artisan queue:table && php artisan migrate`
+first, or use synchronous `Mail::send()` instead (probably the simpler
+right call at this traffic volume — these are low-frequency form/receipt
+emails, not bulk sending).
+
 **Converting a fixed enum column to an admin-managed master (FK) — the
 migration sequence that worked cleanly:** (1) create the master table: (2) add
 the new `_id` FK column as **nullable**, keep the old enum column in place;
@@ -348,23 +424,22 @@ page over custom error views whenever debug is on, which is correct for
 local dev (don't be confused if a change here doesn't visibly do anything
 locally).
 
-## What's next — full endpoint checklist
+## What's next
 
-See `../docs/project-plan.md` for the complete CMS content model (~14 types
-total; 20 built so far across Home + About + Initiatives + Impact +
-Gallery). Impact and Gallery are both done — see "What's built" above for
-their content types. Remaining, in likely priority order:
-1. Donation methods — read-only, same 6-step pattern above.
-2. `VolunteerApplication` / `CsrInquiry` / `NewsletterSubscriber` — these are
-   write endpoints (form POSTs on the Get Involved/Contact pages), need
-   validation + a notification email, no Filament Resource strictly required
-   for create (only for the admin to view/manage submissions). Different
-   pattern from everything built so far — don't force these into the
-   read-only vertical slice above.
-3. Razorpay: `POST /donations/create-order`, `POST /donations/verify`
-   (signature verification — **never trust the frontend's "payment succeeded"
-   claim, always verify server-side against Razorpay's signature**),
-   `POST /webhooks/razorpay`
+All pages are now built (Home, About, Initiatives, Impact, Gallery, Get
+Involved, Contact) — see "What's built" above for the full content-type
+inventory (29 types total across all pages, plus the public write
+endpoints and Razorpay integration). Remaining known gaps, not pages:
+1. Email notifications (deliberately skipped per user decision — see the
+   "Get Involved / Contact" note above for what to check before adding
+   this, specifically the missing `jobs` table if `->queue()` is used).
+2. Real end-to-end Razorpay testing was done in test mode with the user's
+   own credentials — going live just means entering live-mode credentials
+   via `/admin/payment-settings` and configuring the real webhook URL
+   (`/api/v1/webhooks/razorpay`) + its secret on Razorpay's dashboard.
+   No code change needed for that transition.
+3. Scramble's `/docs/api` — installed, not yet verified that it actually
+   renders (see Environment specifics in the root CLAUDE.md).
 
 ## Hard rule specific to this side: media uploads
 

@@ -5,19 +5,27 @@ use App\Http\Controllers\Api\AboutIntroController;
 use App\Http\Controllers\Api\AboutMilestoneController;
 use App\Http\Controllers\Api\CarbonStatController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ContactHeroController;
+use App\Http\Controllers\Api\ContactSubmissionController;
 use App\Http\Controllers\Api\CsrFeatureController;
+use App\Http\Controllers\Api\CsrInquiryController;
 use App\Http\Controllers\Api\CsrPartnerController;
 use App\Http\Controllers\Api\CtaBandController;
+use App\Http\Controllers\Api\DonationController;
+use App\Http\Controllers\Api\DonationMethodController;
 use App\Http\Controllers\Api\GalleryCategoryController;
 use App\Http\Controllers\Api\GalleryHeroController;
 use App\Http\Controllers\Api\GalleryItemController;
 use App\Http\Controllers\Api\GeographicReachController;
+use App\Http\Controllers\Api\GetInvolvedHeroController;
 use App\Http\Controllers\Api\HeroController;
 use App\Http\Controllers\Api\ImpactHeroController;
 use App\Http\Controllers\Api\ImpactStatController;
 use App\Http\Controllers\Api\InitiativeController;
 use App\Http\Controllers\Api\InitiativesHeroController;
+use App\Http\Controllers\Api\NewsletterSubscriberController;
 use App\Http\Controllers\Api\PillarController;
+use App\Http\Controllers\Api\RazorpayWebhookController;
 use App\Http\Controllers\Api\SdgAlignmentController;
 use App\Http\Controllers\Api\SectionHeadingController;
 use App\Http\Controllers\Api\SeoSettingController;
@@ -25,6 +33,7 @@ use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\TestimonialController;
 use App\Http\Controllers\Api\TrustBadgeController;
+use App\Http\Controllers\Api\VolunteerApplicationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -71,4 +80,31 @@ Route::prefix('v1')->group(function () {
     Route::get('/gallery-hero', [GalleryHeroController::class, 'show']);
     Route::get('/gallery-items', [GalleryItemController::class, 'index']);
     Route::get('/gallery-categories', [GalleryCategoryController::class, 'index']);
+
+    // Get Involved page
+    Route::get('/get-involved-hero', [GetInvolvedHeroController::class, 'show']);
+    Route::get('/donation-methods', [DonationMethodController::class, 'index']);
+
+    // Contact page
+    Route::get('/contact-hero', [ContactHeroController::class, 'show']);
+
+    // Public write endpoints — first use of throttle middleware in this
+    // project, per the project plan's own security requirement. Uses the
+    // named 'public-forms' limiter (see AppServiceProvider::boot()), not
+    // the bare `throttle:5,1` shorthand — that keys by IP+domain only, so
+    // every route in this group would share one pooled bucket instead of
+    // each endpoint getting its own.
+    Route::middleware('throttle:public-forms')->group(function () {
+        Route::post('/volunteer-applications', [VolunteerApplicationController::class, 'store']);
+        Route::post('/csr-inquiries', [CsrInquiryController::class, 'store']);
+        Route::post('/contact-submissions', [ContactSubmissionController::class, 'store']);
+        Route::post('/newsletter-subscribers', [NewsletterSubscriberController::class, 'store']);
+        Route::post('/donations/create-order', [DonationController::class, 'createOrder']);
+        Route::post('/donations/verify', [DonationController::class, 'verify']);
+    });
+
+    // Razorpay webhook — server-to-server, not a public form; own
+    // (looser) throttle so Razorpay's own retry bursts don't get 429'd.
+    Route::post('/webhooks/razorpay', [RazorpayWebhookController::class, 'handle'])
+        ->middleware('throttle:60,1');
 });
