@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\CtaBand;
 use App\Models\Hero;
 use App\Models\ImpactStat;
@@ -21,6 +22,8 @@ class HomePageSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(CategorySeeder::class);
+
         Hero::current()->update([
             'eyebrow' => 'Reforestation · Water · Education',
             'headline' => "Restoring Earth,\nEmpowering Communities",
@@ -72,19 +75,21 @@ class HomePageSeeder extends Seeder
             ImpactStat::updateOrCreate(['label' => $s['label']], $s);
         }
 
+        $categoryIds = Category::pluck('id', 'slug');
+
         $pillars = [
             [
-                'title' => 'Tree Plantation', 'category' => 'environment', 'slug' => 'tree-plantation',
+                'title' => 'Tree Plantation', 'category_id' => $categoryIds['environment'], 'slug' => 'tree-plantation',
                 'summary' => 'Restoring biodiversity by planting native species across degraded forest lands and urban centers.',
                 'icon' => 'TreePine', 'order' => 1, 'featured_on_home' => true,
             ],
             [
-                'title' => 'Water Restoration', 'category' => 'water', 'slug' => 'water-restoration',
+                'title' => 'Water Restoration', 'category_id' => $categoryIds['water'], 'slug' => 'water-restoration',
                 'summary' => 'Desilting ponds, harvesting rainwater, and ensuring sustainable clean water access for remote villages.',
                 'icon' => 'Droplets', 'order' => 2, 'featured_on_home' => true,
             ],
             [
-                'title' => 'Holistic Education', 'category' => 'community', 'slug' => 'holistic-education',
+                'title' => 'Holistic Education', 'category_id' => $categoryIds['community'], 'slug' => 'holistic-education',
                 'summary' => 'Providing modern curriculum, digital literacy, and life skills training to bridge the urban-rural divide.',
                 'icon' => 'BookOpen', 'order' => 3, 'featured_on_home' => true,
             ],

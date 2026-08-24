@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -11,7 +12,7 @@ class Initiative extends Model implements HasMedia
     use InteractsWithMedia;
 
     protected $fillable = [
-        'title', 'category', 'slug', 'summary', 'body',
+        'title', 'category_id', 'slug', 'summary', 'body',
         'icon', 'order', 'is_published', 'featured_on_home',
     ];
 
@@ -19,6 +20,11 @@ class Initiative extends Model implements HasMedia
         'is_published' => 'boolean',
         'featured_on_home' => 'boolean',
     ];
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function registerMediaCollections(): void
     {

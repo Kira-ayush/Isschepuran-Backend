@@ -18,8 +18,8 @@ class InitiativeResource extends Resource
 {
     protected static ?string $model = Initiative::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-sparkles';
-    protected static string|UnitEnum|null $navigationGroup = 'Home Page';
-    protected static ?string $navigationLabel = 'Initiatives / Pillars';
+    protected static string|UnitEnum|null $navigationGroup = 'Initiatives Page';
+    protected static ?string $navigationLabel = 'All Initiatives';
 
     public static function form(Schema $schema): Schema
     {
@@ -33,13 +33,12 @@ class InitiativeResource extends Resource
             Forms\Components\TextInput::make('slug')
                 ->required()
                 ->unique(ignoreRecord: true),
-            Forms\Components\Select::make('category')
-                ->options([
-                    'environment' => 'Environment',
-                    'water' => 'Water',
-                    'community' => 'Community',
-                ])
-                ->required(),
+            Forms\Components\Select::make('category_id')
+                ->label('Category')
+                ->relationship('category', 'name')
+                ->required()
+                ->preload()
+                ->helperText('Manage the list of categories under Categories in the nav.'),
             Forms\Components\Textarea::make('summary')
                 ->required()
                 ->rows(3)
@@ -66,7 +65,7 @@ class InitiativeResource extends Resource
             ->columns([
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('image')->collection('image'),
                 Tables\Columns\TextColumn::make('title')->searchable(),
-                Tables\Columns\TextColumn::make('category')->badge(),
+                Tables\Columns\TextColumn::make('category.name')->badge(),
                 Tables\Columns\IconColumn::make('featured_on_home')->boolean()->label('On Home'),
                 Tables\Columns\IconColumn::make('is_published')->boolean(),
             ])

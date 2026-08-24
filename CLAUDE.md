@@ -107,8 +107,8 @@ needs this same flag.
 
 **Home** (6 types): `SiteSetting` (site-wide, singleton), `Hero` (singleton,
 has CTAs + background image), `ImpactStat`, `Initiative` (pillars — has
-`category` enum + `featured_on_home` bool), `Testimonial`, `CtaBand`
-(singleton).
+`category_id` FK + `featured_on_home` bool — see `Category` below, this was
+originally a fixed enum), `Testimonial`, `CtaBand` (singleton).
 
 **About** (6 types): `AboutHero` (singleton, no CTAs — matches actual source
 content), `AboutIntro` (singleton — origin story + vision/mission),
@@ -116,6 +116,66 @@ content), `AboutIntro` (singleton — origin story + vision/mission),
 do NOT reuse for a future Impact-page timeline, they contradict each other
 per the site audit), `TeamMember` (has the same real-photo-only rule as
 `Testimonial` — see below), `TrustBadge`.
+
+**Initiatives** (reuses Home's `Initiative` model, doesn't add a new content
+type): `InitiativesHero` (singleton, no CTAs). The full listing pulls from
+the same `initiatives` table Home's featured pillars use, just unscoped
+(`Initiative::published()->get()` vs. `featuredOnHome()`) and through a
+different, fuller Http Resource — `InitiativeListResource` (adds `body`)
+alongside the original `InitiativeResource` (Home's lean shape). **When the
+same model needs a leaner shape for one page and a fuller one for another,
+add a second Http Resource + controller + route rather than adding fields
+to the existing one** — keeps Home's `/pillars` contract exactly as
+documented in `frontend/src/lib/types.ts`'s `Pillar` instead of growing an
+unused field onto it. `InitiativeResource` (the Filament admin resource)
+moved from the `Home Page` nav group to `Initiatives Page` once a second
+page started depending on it — same "group by actual usage, not
+by-page-that-happened-to-need-it-first" rule as `SectionHeading` list
+sections. Also has its own detail endpoint, `GET /api/v1/initiatives/{slug}`
+(404 JSON response for an unknown slug, not a Laravel error page — the
+frontend's `getInitiative()` checks for `status === 404` specifically to
+call Next's `notFound()`).
+
+**`Category`** — the master list of Initiative categories (Environment,
+Water, Community today, but meant to grow/shrink from the admin panel
+without a code change). Own Filament resource under Initiatives Page →
+Categories: `name`, `slug`, `color` (a Select restricted to a fixed set of
+approved design-token keys — `forest`/`sage`/`mustard`/`forest-dark` — NOT
+a free color picker, keeps new categories on-brand automatically; add new
+options to both `CategoryResource::COLOR_OPTIONS` (backend) and
+`frontend/src/lib/categoryColors.ts`'s `categoryColorClasses` map if the
+approved palette ever grows), `order`, `is_published`. `Initiative.category`
+was originally a 3-value enum column — converted to `category_id` FK
+belongsTo `Category` (see migration history below if a similar enum→FK
+conversion is needed elsewhere). Deleting a Category still assigned to
+initiatives is blocked with a friendly notification
+(`EditCategory::getHeaderActions()`'s `DeleteAction->before()` + `->cancel()`)
+rather than a raw foreign-key-constraint database error — the FK itself is
+`restrictOnDelete()`, so without this UI guard it would throw.
+
+Every Http Resource that includes an initiative (`InitiativeResource`,
+`InitiativeListResource`) nests `category` as `new CategoryResource($this->category)`
+— `{slug, name, color, order}` — not a bare string. Controllers that query
+initiatives eager-load it (`Initiative::with('category')->...`) to avoid
+N+1s; a new controller returning initiatives should do the same.
+
+**Converting a fixed enum column to an admin-managed master (FK) — the
+migration sequence that worked cleanly:** (1) create the master table: (2) add
+the new `_id` FK column as **nullable**, keep the old enum column in place;
+(3) a seeder backfills the FK from the old column's values and creates the
+initial master rows (`CategorySeeder`, called from any content seeder that
+references categories — safe to call repeatedly, `updateOrCreate`); (4) a
+separate migration drops the old column and makes the FK `NOT NULL`. Doing
+the drop+NOT NULL in the same migration as adding the column will lose the
+backfill step entirely. Also: a `nullOnDelete()` FK **cannot** be changed to
+`NOT NULL` directly — MySQL rejects it ("column cannot be NOT NULL: needed
+in a foreign key constraint ... SET NULL") — drop and re-add the constraint
+with a different `onDelete()` (we used `restrictOnDelete()`) in that same
+finalize migration, before the `NOT NULL` change. MySQL also doesn't run
+migrations transactionally, so a failed finalize migration can leave the
+table in a partially-changed state (in our case the enum column was already
+dropped when the FK-constraint step failed) — check the actual schema
+(`DESCRIBE table`) before assuming a failed migration changed nothing.
 
 Plus the generic `SectionHeading` (see above) powering section titles on
 every list-style resource across both pages. `SectionHeading` also supports
@@ -154,12 +214,14 @@ locally).
 ## What's next — full endpoint checklist
 
 See `../docs/project-plan.md` for the complete CMS content model (~14 types
-total; 12 built so far across Home + About). Remaining, in likely priority
-order:
-1. Initiatives page (full list + detail, not just Home's featured 3),
-   Impact page (own timeline — new content type, see the contradiction
-   warning above), Gallery, SDG alignment rows, CSR partners, Donation
-   methods — read-only, same 6-step pattern above.
+total; 13 built so far across Home + About + Initiatives). Remaining, in
+likely priority order:
+1. Impact page (own timeline content type — see the `AboutMilestone`
+   contradiction warning above; also needs an SDG-alignment content type,
+   whose numbers must reconcile with Water Restoration's Initiatives-page
+   figures, "50+ Lakes / 10M+ Liters" vs. the source doc's "4.5M litres" —
+   pick one before seeding, don't ship both), Gallery, CSR partners,
+   Donation methods — read-only, same 6-step pattern above.
 2. `VolunteerApplication` / `CsrInquiry` / `NewsletterSubscriber` — these are
    write endpoints (form POSTs on the Get Involved/Contact pages), need
    validation + a notification email, no Filament Resource strictly required

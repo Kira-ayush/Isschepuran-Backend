@@ -13,7 +13,7 @@ class PillarController extends Controller
     public function index()
     {
         return InitiativeResource::collection(
-            Initiative::featuredOnHome()->get()
+            Initiative::with('category')->featuredOnHome()->get()
         );
     }
 }
