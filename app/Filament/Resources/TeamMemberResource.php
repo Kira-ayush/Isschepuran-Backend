@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TestimonialResource\Pages;
-use App\Models\Testimonial;
+use App\Filament\Resources\TeamMemberResource\Pages;
+use App\Models\TeamMember;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -12,24 +12,23 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use UnitEnum;
 
-class TestimonialResource extends Resource
+class TeamMemberResource extends Resource
 {
-    protected static ?string $model = Testimonial::class;
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static string|UnitEnum|null $navigationGroup = 'Home Page';
+    protected static ?string $model = TeamMember::class;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+    protected static string|UnitEnum|null $navigationGroup = 'About Page';
+    protected static ?string $navigationLabel = 'Team';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Forms\Components\Textarea::make('quote')
-                ->required()
-                ->rows(4),
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->helperText('This is a real, named person — see the note below before adding a photo.'),
+            Forms\Components\TextInput::make('name')->required(),
             Forms\Components\TextInput::make('role')
                 ->required()
-                ->helperText('e.g. "Community Leader, West Bengal"'),
+                ->helperText('e.g. "Social Work" or "Post Treasurer & Senior Operations Manager"'),
+            Forms\Components\Textarea::make('bio')
+                ->rows(3)
+                ->required(false),
             Forms\Components\SpatieMediaLibraryFileUpload::make('photo')
                 ->collection('photo')
                 ->image()
@@ -56,7 +55,6 @@ class TestimonialResource extends Resource
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('role'),
-                Tables\Columns\TextColumn::make('quote')->limit(50),
                 Tables\Columns\IconColumn::make('is_published')->boolean(),
             ])
             ->defaultSort('order');
@@ -65,9 +63,9 @@ class TestimonialResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTestimonials::route('/'),
-            'create' => Pages\CreateTestimonial::route('/create'),
-            'edit' => Pages\EditTestimonial::route('/{record}/edit'),
+            'index' => Pages\ListTeamMembers::route('/'),
+            'create' => Pages\CreateTeamMember::route('/create'),
+            'edit' => Pages\EditTeamMember::route('/{record}/edit'),
         ];
     }
 }

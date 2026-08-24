@@ -20,6 +20,13 @@ class SectionHeadingWidget extends Widget implements HasSchemas
 {
     use InteractsWithSchemas;
 
+    // Not a general-purpose Dashboard widget — only ever used explicitly via
+    // ::make(['key' => ..., ...]) on a specific Resource's list page. Without
+    // this, Filament's auto-discovery (app/Filament/Widgets/ is scanned by
+    // AdminPanelProvider's discoverWidgets()) shows it on the Dashboard too,
+    // instantiated with no properties — $key is then accessed uninitialized.
+    protected static bool $isDiscovered = false;
+
     protected string $view = 'filament.widgets.section-heading-widget';
 
     public string $key;

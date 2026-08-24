@@ -49,7 +49,8 @@ class InitiativeResource extends Resource
             Forms\Components\SpatieMediaLibraryFileUpload::make('image')
                 ->collection('image')
                 ->image()
-                ->helperText('Real project photography — see the project doc\'s note on avoiding AI-generated "documentation" images.'),
+                ->maxSize(10240)
+                ->helperText('Real project photography — see the project doc\'s note on avoiding AI-generated "documentation" images. Max file size: 10 MB.'),
             Forms\Components\TextInput::make('icon')
                 ->helperText('lucide-react icon name, e.g. "TreePine", "Droplets", "BookOpen"'),
             Forms\Components\Toggle::make('featured_on_home')

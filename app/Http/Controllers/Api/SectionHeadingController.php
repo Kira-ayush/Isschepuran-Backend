@@ -11,10 +11,14 @@ class SectionHeadingController extends Controller
 {
     // Known keys and their fallback defaults if an admin hasn't edited them
     // yet — keep in sync with the SectionHeadingWidget instances that
-    // register each key (see InitiativeResource/TestimonialResource list pages).
+    // register each key (see each Resource's ListRecords page).
     private const DEFAULTS = [
         'pillars' => ['eyebrow' => 'What we do', 'heading' => 'Our Core Pillars'],
         'testimonials' => ['eyebrow' => 'Voices of impact', 'heading' => 'Real stories from the communities we serve'],
+        'geographic-reach' => ['eyebrow' => 'Where we work', 'heading' => 'Our Geographic Reach'],
+        'about-milestones' => ['eyebrow' => 'Our journey', 'heading' => 'Milestones of Impact'],
+        'team' => ['eyebrow' => 'The people behind it', 'heading' => 'Meet Our Team'],
+        'trust-badges' => ['eyebrow' => 'Transparency & trust', 'heading' => 'Certified & Accountable'],
     ];
 
     // GET /api/v1/section-headings/{key}

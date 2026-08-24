@@ -1,12 +1,18 @@
 <?php
 
+use App\Http\Controllers\Api\AboutHeroController;
+use App\Http\Controllers\Api\AboutIntroController;
+use App\Http\Controllers\Api\AboutMilestoneController;
 use App\Http\Controllers\Api\CtaBandController;
+use App\Http\Controllers\Api\GeographicReachController;
 use App\Http\Controllers\Api\HeroController;
 use App\Http\Controllers\Api\ImpactStatController;
 use App\Http\Controllers\Api\PillarController;
 use App\Http\Controllers\Api\SectionHeadingController;
 use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\TestimonialController;
+use App\Http\Controllers\Api\TrustBadgeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,4 +32,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/testimonials', [TestimonialController::class, 'index']);
     Route::get('/cta-band', [CtaBandController::class, 'show']);
     Route::get('/section-headings/{key}', [SectionHeadingController::class, 'show']);
+
+    // About page
+    Route::get('/about-hero', [AboutHeroController::class, 'show']);
+    Route::get('/about-intro', [AboutIntroController::class, 'show']);
+    Route::get('/geographic-reach', [GeographicReachController::class, 'index']);
+    Route::get('/about-milestones', [AboutMilestoneController::class, 'index']);
+    Route::get('/team', [TeamMemberController::class, 'index']);
+    Route::get('/trust-badges', [TrustBadgeController::class, 'index']);
 });

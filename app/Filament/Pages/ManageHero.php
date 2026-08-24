@@ -50,7 +50,8 @@ class ManageHero extends Page
             Forms\Components\SpatieMediaLibraryFileUpload::make('background')
                 ->collection('background')
                 ->image()
-                ->helperText('Full-bleed background photo behind the hero text.'),
+                ->maxSize(10240)
+                ->helperText('Full-bleed background photo behind the hero text. Max file size: 10 MB.'),
         ])->statePath('data');
     }
 
