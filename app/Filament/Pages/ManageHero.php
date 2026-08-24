@@ -27,7 +27,8 @@ class ManageHero extends Page
 
     public function mount(): void
     {
-        $this->form->fill(Hero::current()->toArray());
+        $hero = Hero::current();
+        $this->form->model($hero)->fill($hero->toArray());
     }
 
     public function form(Schema $schema): Schema

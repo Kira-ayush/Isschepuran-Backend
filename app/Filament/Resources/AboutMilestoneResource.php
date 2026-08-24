@@ -31,6 +31,12 @@ class AboutMilestoneResource extends Resource
             Forms\Components\Textarea::make('description')
                 ->required()
                 ->rows(3),
+            Forms\Components\SpatieMediaLibraryFileUpload::make('image')
+                ->collection('image')
+                ->image()
+                ->maxSize(10240)
+                ->helperText('Optional photo for this milestone. Max file size: 10 MB.')
+                ->required(false),
             Forms\Components\TextInput::make('order')->numeric()->default(0),
             Forms\Components\Toggle::make('is_published')->default(true),
         ]);
@@ -40,6 +46,7 @@ class AboutMilestoneResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\SpatieMediaLibraryImageColumn::make('image')->collection('image'),
                 Tables\Columns\TextColumn::make('order')->sortable(),
                 Tables\Columns\TextColumn::make('year')->searchable(),
                 Tables\Columns\TextColumn::make('title')->searchable(),

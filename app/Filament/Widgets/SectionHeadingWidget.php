@@ -14,7 +14,9 @@ use Filament\Widgets\Widget;
  * Reusable "eyebrow + heading" editor shown above a Resource's list table
  * (via getHeaderWidgets()), for sections that are a collection of records
  * (Pillars, Testimonials) rather than a true singleton — so there's no
- * separate settings page just for a two-field title.
+ * separate settings page just for a two-field title. Also supports an
+ * optional section-level image (e.g. Geographic Reach's infographic map) —
+ * most sections won't use it, that's fine, it's optional.
  */
 class SectionHeadingWidget extends Widget implements HasSchemas
 {
@@ -41,10 +43,8 @@ class SectionHeadingWidget extends Widget implements HasSchemas
 
     public function mount(): void
     {
-        $this->form->fill(
-            SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading)
-                ->only(['eyebrow', 'heading'])
-        );
+        $record = SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading);
+        $this->form->model($record)->fill($record->only(['eyebrow', 'heading']));
     }
 
     public function form(Schema $schema): Schema
@@ -52,14 +52,24 @@ class SectionHeadingWidget extends Widget implements HasSchemas
         return $schema->components([
             Forms\Components\TextInput::make('eyebrow')->required(),
             Forms\Components\TextInput::make('heading')->required(),
+            Forms\Components\SpatieMediaLibraryFileUpload::make('image')
+                ->collection('image')
+                ->image()
+                ->maxSize(10240)
+                ->helperText('Optional section image (most sections don\'t need one). Max file size: 10 MB.')
+                ->required(false),
         ])->statePath('data');
     }
 
     public function save(): void
     {
+        $record = SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading);
+
         $state = $this->form->getState();
-        SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading)
-            ->update($state);
+        unset($state['image']);
+        $record->update($state);
+
+        $this->form->model($record)->saveRelationships();
 
         Notification::make()
             ->title('Section heading saved')

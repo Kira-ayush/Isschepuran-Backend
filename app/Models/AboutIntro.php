@@ -3,10 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class AboutIntro extends Model
+class AboutIntro extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = ['origin_title', 'origin_body', 'established_year', 'vision', 'mission'];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('origin_image')->singleFile()->useDisk('public');
+    }
 
     /**
      * Always fetch (and lazily create) the single About intro row.

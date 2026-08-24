@@ -118,7 +118,38 @@ per the site audit), `TeamMember` (has the same real-photo-only rule as
 `Testimonial` — see below), `TrustBadge`.
 
 Plus the generic `SectionHeading` (see above) powering section titles on
-every list-style resource across both pages.
+every list-style resource across both pages. `SectionHeading` also supports
+an optional `image` media collection (most sections don't set one — it's
+for section-level visuals like Geographic Reach's infographic map, not
+per-item images).
+
+`AboutIntro` and `AboutMilestone` also each got an optional image field
+(`origin_image` / `image`) added after the fact — a real content asset pack
+arrived mid-build and these didn't have media support yet. Follow this
+pattern (add `HasMedia`/`InteractsWithMedia` + `useDisk('public')`, then a
+`SpatieMediaLibraryFileUpload` field, then `getFirstMediaUrl()` in the Http
+Resource) any time a text-only content type turns out to need an image
+later — no migration needed, media lives in the shared polymorphic table.
+
+**Custom Filament pages/widgets with a file-upload field must bind the
+model before `fill()` in `mount()`, not just pass `->toArray()`:**
+`$this->form->model($record)->fill($record->toArray())`, not
+`$this->form->fill($record->toArray())`. Without the model bound,
+`SpatieMediaLibraryFileUpload` has no record to look up existing media
+against, so a previously-uploaded file won't preview when reopening the
+page (the upload itself still saves fine via `saveRelationships()` in
+`save()` — this only affects the admin form's preview, not data
+correctness, but it's confusing enough to always get right). Applies to
+`ManageHero`, `ManageAboutIntro`, `SectionHeadingWidget` — anywhere a
+custom Page/Widget (not a Resource's own Create/EditRecord, which handles
+this automatically) has an upload field.
+
+**Custom error pages** exist at `resources/views/errors/{404,403,419,500,503}.blade.php`
+(sharing `errors/layout.blade.php`), styled with the site's color tokens.
+These only render when `APP_DEBUG=false` — Laravel prefers the full debug
+page over custom error views whenever debug is on, which is correct for
+local dev (don't be confused if a change here doesn't visibly do anything
+locally).
 
 ## What's next — full endpoint checklist
 
@@ -152,6 +183,13 @@ Two things, both required, both silently break without the other:
 2. **`php artisan storage:link`** must have been run once per environment —
    without the `public/storage` symlink, even a correctly-`public`-disk file
    is unreachable.
+
+**Also always add `->maxSize(10240)`** (10MB, in KB — Filament's unit) to
+every `SpatieMediaLibraryFileUpload` field. Without it, a file over Spatie's
+own hard-coded 10MB limit throws an uncaught `FileIsTooBig` exception
+straight to a raw error page instead of Filament's normal inline validation
+message — this happened once already. `maxSize()` makes Filament validate
+(and show a clean field error) before the file ever reaches Spatie.
 
 `TestimonialResource.php` and `TeamMemberResource.php` (and
 `InitiativeResource.php` for its cover image) use `SpatieMediaLibraryFileUpload`.

@@ -27,7 +27,8 @@ class ManageAboutIntro extends Page
 
     public function mount(): void
     {
-        $this->form->fill(AboutIntro::current()->toArray());
+        $intro = AboutIntro::current();
+        $this->form->model($intro)->fill($intro->toArray());
     }
 
     public function form(Schema $schema): Schema
@@ -42,6 +43,11 @@ class ManageAboutIntro extends Page
                         ->numeric()
                         ->minValue(1900)
                         ->maxValue(now()->year),
+                    Forms\Components\SpatieMediaLibraryFileUpload::make('origin_image')
+                        ->collection('origin_image')
+                        ->image()
+                        ->maxSize(10240)
+                        ->helperText('Photo shown alongside the origin story. Max file size: 10 MB.'),
                 ]),
 
             Section::make('Vision & Mission')
@@ -54,8 +60,13 @@ class ManageAboutIntro extends Page
 
     public function save(): void
     {
+        $intro = AboutIntro::current();
+
         $state = $this->form->getState();
-        AboutIntro::current()->update($state);
+        unset($state['origin_image']);
+        $intro->update($state);
+
+        $this->form->model($intro)->saveRelationships();
 
         Notification::make()
             ->title('About story saved')
