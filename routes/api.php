@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CsrFeatureController;
 use App\Http\Controllers\Api\CsrPartnerController;
 use App\Http\Controllers\Api\CtaBandController;
+use App\Http\Controllers\Api\GalleryCategoryController;
+use App\Http\Controllers\Api\GalleryHeroController;
+use App\Http\Controllers\Api\GalleryItemController;
 use App\Http\Controllers\Api\GeographicReachController;
 use App\Http\Controllers\Api\HeroController;
 use App\Http\Controllers\Api\ImpactHeroController;
@@ -63,4 +66,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/csr-features', [CsrFeatureController::class, 'index']);
     Route::get('/csr-partners', [CsrPartnerController::class, 'index']);
     Route::get('/carbon-stats', [CarbonStatController::class, 'index']);
+
+    // Gallery page
+    Route::get('/gallery-hero', [GalleryHeroController::class, 'show']);
+    Route::get('/gallery-items', [GalleryItemController::class, 'index']);
+    Route::get('/gallery-categories', [GalleryCategoryController::class, 'index']);
 });

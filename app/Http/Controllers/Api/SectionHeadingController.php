@@ -23,6 +23,7 @@ class SectionHeadingController extends Controller
         'impact-testimonials' => ['eyebrow' => 'Voices of impact', 'heading' => 'Faces of Impact'],
         'sdg-alignment' => ['eyebrow' => 'Global commitments', 'heading' => 'Aligned with the UN Sustainable Development Goals'],
         'csr-synergy' => ['eyebrow' => 'Partner with purpose', 'heading' => 'Corporate Social Synergy'],
+        'gallery-items' => ['eyebrow' => 'Moments from the field', 'heading' => 'Our Gallery'],
     ];
 
     // GET /api/v1/section-headings/{key}

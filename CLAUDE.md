@@ -197,6 +197,57 @@ other two list pages' `getHeaderWidgets()` deliberately return nothing, see
 their class comments) since the source content presents them as one
 section, not three.
 
+**Gallery** (3 new types): unlike every other page, the original site's
+Gallery was **completely empty** ("nav and footer only") — a from-scratch
+build, no copy to migrate anywhere including hero copy (`GalleryHero`'s
+seeded default is drafted, same flagging convention as `ImpactHero`).
+`GalleryItem` (media + `image_alt`, nullable `caption`, `order`,
+`is_published`) has a `category_id` FK to `GalleryCategory` — **originally
+built as a plain string + curated 3-option Select** (the CMS spec
+hardcodes exactly 3 values with no growth signal, so it matched
+`CsrFeature.icon`'s precedent rather than `Initiative.category_id`'s), then
+**converted to a full category master** per an explicit user request to
+mirror Initiative's admin-managed add/remove/reorder pattern exactly —
+`GalleryCategoryResource` is a close copy of `CategoryResource`
+(`name`/`slug`/`color` restricted to the same approved palette/`order`/
+`is_published`, same delete-protection guard on `EditGalleryCategory`).
+**Gotcha hit during the conversion**: `GalleryCategory::galleryItems()`
+needed an **explicit** `hasMany(GalleryItem::class, 'category_id')`
+foreign key — without it, Eloquent infers `gallery_category_id` from the
+model's own class name, which doesn't match the actual `category_id`
+column (this only surfaced as a 500 on the category list page's
+`->counts('galleryItems')` column, not at migrate/seed time — another
+render-time-only bug the "render-test, don't trust migrate" habit caught).
+The migration sequence is the same enum→FK pattern as Initiative's (see
+below), this time with the old column's `dropColumn()` included in the
+finalize migration from the start rather than left out. One
+`gallery-items` section-heading key covers the whole grid — this isn't
+grouped-by-category server-side like Initiatives, just one grid with
+**client-side filter tabs** (`GalleryGrid.tsx` on the frontend, dynamically
+built from `GalleryCategory` — a tab is only shown for a category that
+currently has at least one published item, "General" starts hidden since
+it has zero), a genuinely new pattern in this codebase, alongside a
+click-to-open **lightbox** (`GalleryLightbox.tsx`, later enhanced with
+prev/next navigation via buttons, arrow keys, and touch-swipe, all
+wrapping at the ends and scoped to whatever filter is active) — both built
+with plain React state + Tailwind, no new npm dependency. `GalleryItem`
+also has an `is_featured` boolean (which image shows in the large banner
+above the grid) — an explicit admin toggle, not an implicit "lowest
+`order`" convention. **At most one row may be `is_featured` at a time,
+enforced in `GalleryItem::booted()`'s `saving` hook** (setting one row
+featured directly un-features every other row via a plain query update,
+not a cascade of model events) rather than relying on form-level UI
+discipline or a DB constraint (a partial unique index wasn't judged worth
+the portability cost for one boolean flag on a handful of rows).
+`GalleryPageSeeder` is also
+the **first seeder in this project to attach a real uploaded file**
+programmatically (`addMedia($path)->preservingOriginal()
+->toMediaCollection('image')`) rather than a manual admin-panel upload —
+guarded with `is_file($path)` (skips + logs a warning rather than crashing
+`db:seed` if a teammate doesn't have the local client asset pack) and
+idempotent on re-run (`getMedia('image')->isNotEmpty()` skip check). Any
+future seeder needing to attach a real file can copy this pattern.
+
 **Converting a fixed enum column to an admin-managed master (FK) — the
 migration sequence that worked cleanly:** (1) create the master table: (2) add
 the new `_id` FK column as **nullable**, keep the old enum column in place;
@@ -300,10 +351,10 @@ locally).
 ## What's next — full endpoint checklist
 
 See `../docs/project-plan.md` for the complete CMS content model (~14 types
-total; 18 built so far across Home + About + Initiatives + Impact). Impact
-is done — see "What's built" above for its content types. Remaining, in
-likely priority order:
-1. Gallery, Donation methods — read-only, same 6-step pattern above.
+total; 20 built so far across Home + About + Initiatives + Impact +
+Gallery). Impact and Gallery are both done — see "What's built" above for
+their content types. Remaining, in likely priority order:
+1. Donation methods — read-only, same 6-step pattern above.
 2. `VolunteerApplication` / `CsrInquiry` / `NewsletterSubscriber` — these are
    write endpoints (form POSTs on the Get Involved/Contact pages), need
    validation + a notification email, no Filament Resource strictly required
