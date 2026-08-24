@@ -16,6 +16,12 @@ class ListAboutMilestones extends ListRecords
         return [Actions\CreateAction::make()];
     }
 
+    // These records (the Cyclone Yaas founding timeline) are shown on both
+    // About and Impact pages — Impact reuses this real timeline instead of
+    // the original site's geographically-inconsistent placeholder content
+    // (see ImpactPageSeeder's docblock). Each page's framing copy is
+    // edited independently — two SectionHeadingWidget keys, one admin
+    // screen.
     protected function getHeaderWidgets(): array
     {
         return [
@@ -24,6 +30,12 @@ class ListAboutMilestones extends ListRecords
                 'defaultEyebrow' => 'Our journey',
                 'defaultHeading' => 'Milestones of Impact',
                 'label' => 'About Page — Section Heading',
+            ]),
+            SectionHeadingWidget::make([
+                'key' => 'impact-milestones',
+                'defaultEyebrow' => 'Our journey',
+                'defaultHeading' => 'Journey of Impact',
+                'label' => 'Impact Page — Section Heading',
             ]),
         ];
     }

@@ -13,7 +13,7 @@ class SeoSettingController extends Controller
     // An allowlist (rather than lazily creating a row for any string in the
     // URL) matches SectionHeadingController's pattern for the same reason:
     // an arbitrary key shouldn't be able to spam rows into the table.
-    private const KEYS = ['home', 'about', 'initiatives'];
+    private const KEYS = ['home', 'about', 'initiatives', 'impact'];
 
     // GET /api/v1/seo-settings/{key}
     public function show(string $key): SeoSettingResource

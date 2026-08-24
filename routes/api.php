@@ -3,14 +3,19 @@
 use App\Http\Controllers\Api\AboutHeroController;
 use App\Http\Controllers\Api\AboutIntroController;
 use App\Http\Controllers\Api\AboutMilestoneController;
+use App\Http\Controllers\Api\CarbonStatController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CsrFeatureController;
+use App\Http\Controllers\Api\CsrPartnerController;
 use App\Http\Controllers\Api\CtaBandController;
 use App\Http\Controllers\Api\GeographicReachController;
 use App\Http\Controllers\Api\HeroController;
+use App\Http\Controllers\Api\ImpactHeroController;
 use App\Http\Controllers\Api\ImpactStatController;
 use App\Http\Controllers\Api\InitiativeController;
 use App\Http\Controllers\Api\InitiativesHeroController;
 use App\Http\Controllers\Api\PillarController;
+use App\Http\Controllers\Api\SdgAlignmentController;
 use App\Http\Controllers\Api\SectionHeadingController;
 use App\Http\Controllers\Api\SeoSettingController;
 use App\Http\Controllers\Api\SettingsController;
@@ -51,4 +56,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/initiatives', [InitiativeController::class, 'index']);
     Route::get('/initiatives/{slug}', [InitiativeController::class, 'show']);
     Route::get('/categories', [CategoryController::class, 'index']);
+
+    // Impact page
+    Route::get('/impact-hero', [ImpactHeroController::class, 'show']);
+    Route::get('/sdg-alignments', [SdgAlignmentController::class, 'index']);
+    Route::get('/csr-features', [CsrFeatureController::class, 'index']);
+    Route::get('/csr-partners', [CsrPartnerController::class, 'index']);
+    Route::get('/carbon-stats', [CarbonStatController::class, 'index']);
 });

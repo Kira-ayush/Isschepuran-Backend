@@ -105,14 +105,16 @@ needs this same flag.
 
 ## What's built
 
-**Site-wide** (not page-scoped, so both sit outside every page-specific nav
-group — same reasoning as `SeoSetting` above): `SiteSetting` (org info,
-contact, nav links, social links, donate destination) and `CtaBand` (the
+**Site-wide** (not page-scoped, so all three sit outside every page-specific
+nav group — same reasoning as `SeoSetting` above): `SiteSetting` (org info,
+contact, nav links, social links, donate destination), `CtaBand` (the
 closing "Join the Movement" band shown at the bottom of every page — it
 used to live under the "Home Page" nav group since Home was the first page
 built, but moved out once About and Initiatives started rendering it too;
 if a future page also needs it, no change required, it already applies
-everywhere).
+everywhere), and `SdgAlignment` (the 9-row SDG table — renders on both Home
+and Impact from day one, built with this placement from the start rather
+than starting under one page's nav group and moving later).
 
 **Home** (4 types): `Hero` (singleton, has CTAs + background image),
 `ImpactStat`, `Initiative` (pillars — has `category_id` FK +
@@ -121,10 +123,15 @@ fixed enum), `Testimonial`.
 
 **About** (6 types): `AboutHero` (singleton, no CTAs — matches actual source
 content), `AboutIntro` (singleton — origin story + vision/mission),
-`GeographicReach`, `AboutMilestone` (About-specific "Journey of Impact" —
-do NOT reuse for a future Impact-page timeline, they contradict each other
-per the site audit), `TeamMember` (has the same real-photo-only rule as
-`Testimonial` — see below), `TrustBadge`.
+`GeographicReach`, `AboutMilestone` ("Journey of Impact" — **now
+deliberately reused on the Impact page too** (see Impact below); this
+supersedes an earlier version of this note that said not to reuse it,
+written when the two pages' original site content genuinely contradicted
+each other on geography/timeline. That contradiction was resolved by
+standardizing on this real Cyclone-Yaas-founded timeline everywhere instead
+of keeping two conflicting ones — the original Impact page's placeholder
+"Satpura range" content was never migrated), `TeamMember` (has the same
+real-photo-only rule as `Testimonial` — see below), `TrustBadge`.
 
 **Initiatives** (reuses Home's `Initiative` model, doesn't add a new content
 type): `InitiativesHero` (singleton, no CTAs). The full listing pulls from
@@ -167,6 +174,28 @@ Every Http Resource that includes an initiative (`InitiativeResource`,
 — `{slug, name, color, order}` — not a bare string. Controllers that query
 initiatives eager-load it (`Initiative::with('category')->...`) to avoid
 N+1s; a new controller returning initiatives should do the same.
+
+**Impact** (5 new types + reuses 3 existing ones): `ImpactHero` (singleton,
+no CTAs/image — no source copy existed for this page in
+`docs/raw-site-content.md`, so its seeded default is drafted copy, flagged
+as such in `ImpactPageSeeder`'s docblock, not migrated real content),
+`CsrFeature` (3 fixed feature bullets, curated icon `Select` like
+`ImpactStatResource` rather than free text — a small fixed set, unlike
+`Initiative.icon`'s many-arbitrary-icons case), `CsrPartner` (media +
+`logo_alt`, **seeded with zero rows** — the original site's 3 partner names
+read as obviously fake placeholders, not real ones, so nothing was migrated
+or invented; frontend renders nothing for this sub-block until real
+partners exist), `CarbonStat` (year/tons/`is_projected`). Reuses
+`ImpactStat`/`/impact-stats` (same 6 stat categories as Home, no new type),
+`AboutMilestone`/`/about-milestones`, and `Testimonial`/`/testimonials` —
+see the About section above and `TestimonialResource\Pages\ListTestimonials`
+for why these are shared data with independently-editable per-page framing.
+`SdgAlignment` (see "Site-wide" above) also renders here. CSR content
+(`CsrFeature`/`CsrPartner`/`CarbonStat`) shares **one** section-heading key
+(`csr-synergy`, registered only on `CsrFeatureResource`'s list page — the
+other two list pages' `getHeaderWidgets()` deliberately return nothing, see
+their class comments) since the source content presents them as one
+section, not three.
 
 **Converting a fixed enum column to an admin-managed master (FK) — the
 migration sequence that worked cleanly:** (1) create the master table: (2) add
@@ -271,14 +300,10 @@ locally).
 ## What's next — full endpoint checklist
 
 See `../docs/project-plan.md` for the complete CMS content model (~14 types
-total; 13 built so far across Home + About + Initiatives). Remaining, in
+total; 18 built so far across Home + About + Initiatives + Impact). Impact
+is done — see "What's built" above for its content types. Remaining, in
 likely priority order:
-1. Impact page (own timeline content type — see the `AboutMilestone`
-   contradiction warning above; also needs an SDG-alignment content type,
-   whose numbers must reconcile with Water Restoration's Initiatives-page
-   figures, "50+ Lakes / 10M+ Liters" vs. the source doc's "4.5M litres" —
-   pick one before seeding, don't ship both), Gallery, CSR partners,
-   Donation methods — read-only, same 6-step pattern above.
+1. Gallery, Donation methods — read-only, same 6-step pattern above.
 2. `VolunteerApplication` / `CsrInquiry` / `NewsletterSubscriber` — these are
    write endpoints (form POSTs on the Get Involved/Contact pages), need
    validation + a notification email, no Filament Resource strictly required

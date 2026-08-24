@@ -17,6 +17,10 @@ use Illuminate\Database\Seeder;
  * uses (frontend/src/lib/content/home.mock.ts), so the admin panel and the
  * live site match on day one instead of starting from an empty CMS.
  * Run with: php artisan db:seed --class=HomePageSeeder
+ *
+ * Note: Home's SDG Alignment section (renders on both Home and Impact) is
+ * seeded by ImpactPageSeeder, not here — run that seeder too, or Home's
+ * SDG section will be empty even though this seeder ran successfully.
  */
 class HomePageSeeder extends Seeder
 {

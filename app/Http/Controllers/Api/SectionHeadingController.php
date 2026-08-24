@@ -19,6 +19,10 @@ class SectionHeadingController extends Controller
         'about-milestones' => ['eyebrow' => 'Our journey', 'heading' => 'Milestones of Impact'],
         'team' => ['eyebrow' => 'The people behind it', 'heading' => 'Meet Our Team'],
         'trust-badges' => ['eyebrow' => 'Transparency & trust', 'heading' => 'Certified & Accountable'],
+        'impact-milestones' => ['eyebrow' => 'Our journey', 'heading' => 'Journey of Impact'],
+        'impact-testimonials' => ['eyebrow' => 'Voices of impact', 'heading' => 'Faces of Impact'],
+        'sdg-alignment' => ['eyebrow' => 'Global commitments', 'heading' => 'Aligned with the UN Sustainable Development Goals'],
+        'csr-synergy' => ['eyebrow' => 'Partner with purpose', 'heading' => 'Corporate Social Synergy'],
     ];
 
     // GET /api/v1/section-headings/{key}
