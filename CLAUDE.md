@@ -444,11 +444,37 @@ page over custom error views whenever debug is on, which is correct for
 local dev (don't be confused if a change here doesn't visibly do anything
 locally).
 
+**`LegalPage`** (Privacy Policy / Terms & Conditions / Refund & Cancellation
+Policy) — a full Resource, not fixed singleton pages, so more can be added
+later without a code change (`title`, `slug` auto-generated from title via
+the same `Str::slug` `afterStateUpdated` pattern as `Initiative`,
+`RichEditor` body, `order`, `is_published`). Ungrouped in the nav (no
+`navigationGroup` set), same convention as `SiteSetting`/`CtaBand` — it's
+site-wide, not page-scoped. `GET /api/v1/legal-pages` (title+slug only,
+powers the Footer's dynamic link list) and `GET /api/v1/legal-pages/{slug}`
+(full body, 404 on unknown/unpublished slug). `LegalPagesSeeder.php` seeds
+real, standard-form drafted content — not legal advice, flagged in its
+docblock for the client/counsel to review before real donations go live.
+
+**Real gotcha hit render-testing `LegalPageResource`**: Filament's panel
+`Authenticate` middleware (`vendor/filament/filament/src/Http/Middleware/Authenticate.php`)
+only allows access for a user model that does NOT implement `FilamentUser`
+when `config('app.env') === 'local'` — otherwise it's a 403, regardless of
+whether the user is authenticated. `phpunit.xml` sets `APP_ENV=testing`
+for the test suite, so a plain `actingAs($user)->get('/admin/...')`
+PHPUnit test 403s even though the exact same request succeeds against a
+real `php artisan serve` dev server (which runs with `APP_ENV=local` from
+`.env`). Fix: call `config(['app.env' => 'local'])` before the request in
+any render test that uses PHPUnit's HTTP testing helpers rather than a
+real server + Playwright. This is likely why every earlier render-test
+this session either used a live server or happened not to hit this path —
+worth remembering for the next PHPUnit-based render test.
+
 ## What's next
 
 All pages are now built (Home, About, Initiatives, Impact, Gallery, Get
-Involved, Contact) — see "What's built" above for the full content-type
-inventory (29 types total across all pages, plus the public write
+Involved, Contact), plus the 3 legal pages — see "What's built" above for
+the full content-type inventory (30 types total, plus the public write
 endpoints and Razorpay integration). Remaining known gaps, not pages:
 1. Email notifications (deliberately skipped per user decision — see the
    "Get Involved / Contact" note above for what to check before adding
@@ -460,6 +486,9 @@ endpoints and Razorpay integration). Remaining known gaps, not pages:
    No code change needed for that transition.
 3. Scramble's `/docs/api` — installed, not yet verified that it actually
    renders (see Environment specifics in the root CLAUDE.md).
+4. The 3 legal pages' content is a drafted starting template, not
+   reviewed legal advice — flag this to the client before launch with
+   real donations flowing.
 
 ## Hard rule specific to this side: media uploads
 
