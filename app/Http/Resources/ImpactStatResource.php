@@ -12,6 +12,7 @@ class ImpactStatResource extends JsonResource
         return [
             'id' => (string) $this->id,
             'label' => $this->label,
+            'prefix' => $this->prefix,
             'value' => $this->value,
             'suffix' => $this->suffix,
             'icon' => $this->icon,

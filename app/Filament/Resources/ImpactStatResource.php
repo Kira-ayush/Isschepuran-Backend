@@ -25,6 +25,9 @@ class ImpactStatResource extends Resource
             Forms\Components\TextInput::make('label')
                 ->required()
                 ->helperText('e.g. "Trees Planted"'),
+            Forms\Components\TextInput::make('prefix')
+                ->maxLength(5)
+                ->helperText('Optional, e.g. "~"'),
             Forms\Components\TextInput::make('value')
                 ->required()
                 ->numeric()
@@ -55,7 +58,7 @@ class ImpactStatResource extends Resource
                 Tables\Columns\TextColumn::make('order')->sortable(),
                 Tables\Columns\TextColumn::make('label')->searchable(),
                 Tables\Columns\TextColumn::make('value')->formatStateUsing(
-                    fn ($record) => number_format($record->value) . $record->suffix
+                    fn ($record) => $record->prefix . number_format($record->value) . $record->suffix
                 ),
                 Tables\Columns\IconColumn::make('is_published')->boolean(),
             ])

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ImpactStat extends Model
 {
-    protected $fillable = ['label', 'value', 'suffix', 'icon', 'order', 'is_published'];
+    protected $fillable = ['label', 'prefix', 'value', 'suffix', 'icon', 'order', 'is_published'];
 
     protected $casts = [
         'is_published' => 'boolean',

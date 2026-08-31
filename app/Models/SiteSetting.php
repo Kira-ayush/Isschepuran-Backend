@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class SiteSetting extends Model
+class SiteSetting extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = [
-        'org_name', 'tagline', 'phone', 'email', 'address',
+        'org_name', 'logo_alt', 'tagline', 'phone', 'email', 'address',
         'social_links', 'nav_links', 'donate_href',
     ];
 
@@ -16,14 +22,33 @@ class SiteSetting extends Model
         'nav_links' => 'array',
     ];
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')->singleFile()->useDisk('public');
+    }
+
     /**
      * Always fetch (and lazily create) the single settings row — there is
      * only ever one, edited from a Filament settings page, not a list.
      */
+    public static function ensureSchema(): void
+    {
+        if (! Schema::hasTable('site_settings') || Schema::hasColumn('site_settings', 'logo_alt')) {
+            return;
+        }
+
+        Schema::table('site_settings', function (Blueprint $table) {
+            $table->string('logo_alt')->nullable()->after('org_name');
+        });
+    }
+
     public static function current(): self
     {
+        static::ensureSchema();
+
         return static::firstOrCreate(['id' => 1], [
             'org_name' => 'Ichhe Puran',
+            'logo_alt' => 'Ichhe Puran logo',
             'tagline' => 'Nurturing nature, restoring ecosystems, and empowering communities through transparent philanthropy.',
             'phone' => '',
             'email' => '',

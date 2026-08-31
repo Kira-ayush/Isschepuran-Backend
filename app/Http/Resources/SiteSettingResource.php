@@ -16,6 +16,8 @@ class SiteSettingResource extends JsonResource
     {
         return [
             'orgName' => $this->org_name,
+            'orgLogo' => $this->getFirstMediaUrl('logo') ?: null,
+            'logoAlt' => $this->logo_alt,
             'tagline' => $this->tagline,
             'phone' => $this->phone,
             'email' => $this->email,

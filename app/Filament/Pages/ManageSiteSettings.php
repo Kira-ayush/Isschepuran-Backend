@@ -28,14 +28,23 @@ class ManageSiteSettings extends Page
 
     public function mount(): void
     {
-        $this->form->fill(SiteSetting::current()->toArray());
+        $settings = SiteSetting::current();
+        $this->form->model($settings)->fill($settings->toArray());
     }
 
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Organization')
+            Section::make('Branding')
                 ->schema([
+                    Forms\Components\SpatieMediaLibraryFileUpload::make('logo')
+                        ->collection('logo')
+                        ->image()
+                        ->maxSize(10240)
+                        ->helperText('Upload the organization logo used in the header/footer. Max file size: 10 MB.'),
+                    Forms\Components\TextInput::make('logo_alt')
+                        ->label('Logo alt text')
+                        ->helperText('Accessible description of the brand logo.'),
                     Forms\Components\TextInput::make('org_name')->required(),
                     Forms\Components\Textarea::make('tagline')->required()->rows(2),
                 ]),
@@ -76,8 +85,12 @@ class ManageSiteSettings extends Page
 
     public function save(): void
     {
+        $settings = SiteSetting::current();
         $state = $this->form->getState();
-        SiteSetting::current()->update($state);
+
+        unset($state['logo']);
+        $settings->update($state);
+        $this->form->model($settings)->saveRelationships();
 
         Notification::make()
             ->title('Site settings saved')
