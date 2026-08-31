@@ -18,7 +18,8 @@ use App\Http\Controllers\Api\GalleryHeroController;
 use App\Http\Controllers\Api\GalleryItemController;
 use App\Http\Controllers\Api\GeographicReachController;
 use App\Http\Controllers\Api\GetInvolvedHeroController;
-use App\Http\Controllers\Api\HeroController;
+use App\Http\Controllers\Api\HeroCarouselSettingController;
+use App\Http\Controllers\Api\HeroSlideController;
 use App\Http\Controllers\Api\ImpactHeroController;
 use App\Http\Controllers\Api\ImpactStatController;
 use App\Http\Controllers\Api\InitiativeController;
@@ -48,7 +49,8 @@ Route::get('/user', function (Request $request) {
 // is independently reusable across pages and cacheable on its own.
 Route::prefix('v1')->group(function () {
     Route::get('/settings', [SettingsController::class, 'show']);
-    Route::get('/hero', [HeroController::class, 'show']);
+    Route::get('/hero-slides', [HeroSlideController::class, 'index']);
+    Route::get('/hero-carousel-settings', [HeroCarouselSettingController::class, 'show']);
     Route::get('/impact-stats', [ImpactStatController::class, 'index']);
     Route::get('/pillars', [PillarController::class, 'index']);
     Route::get('/testimonials', [TestimonialController::class, 'index']);

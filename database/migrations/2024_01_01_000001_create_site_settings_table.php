@@ -13,7 +13,6 @@ return new class extends Migration
         Schema::create('site_settings', function (Blueprint $table) {
             $table->id();
             $table->string('org_name');
-            $table->string('logo_alt')->nullable();
             $table->text('tagline');
             $table->string('phone');
             $table->string('email');

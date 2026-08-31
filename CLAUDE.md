@@ -470,6 +470,73 @@ real server + Playwright. This is likely why every earlier render-test
 this session either used a live server or happened not to hit this path —
 worth remembering for the next PHPUnit-based render test.
 
+**Org logo + Impact Stat prefix** (from a collaborator's commits, "Logo"/
+"Prefix" — reviewed and cleaned up, not built this session): `SiteSetting`
+got a `logo` media collection (rendered in `Navbar`/`Footer` via
+`next/image`, falling back to the old Leaf icon when unset) plus a
+`logo_alt` column, and `ImpactStat` got an optional `prefix` string (e.g.
+so a stat can render "~2,500+", not just "2,500+"). The feature code
+itself was fine, but the commit had two migration-hygiene problems that
+were fixed here, worth knowing if a future collaborator's commit does the
+same thing again:
+1. It edited an **already-applied** migration
+   (`2024_01_01_000001_create_site_settings_table.php`) to add `logo_alt`
+   directly into `up()`, instead of relying solely on the dedicated new
+   migration it also added. Editing a shipped migration makes schema
+   history depend on exactly when each environment first ran it — reverted
+   back to the migration's original content; the new
+   `add_logo_alt_to_site_settings_table` migration (already correctly
+   guarded with `Schema::hasColumn` checks) is now the only source of that
+   column, so every environment converges via `php artisan migrate` the
+   normal way.
+2. It added `SiteSetting::ensureSchema()` — an `ALTER TABLE` run as a side
+   effect of `SiteSetting::current()`, which fires on nearly every page
+   load. Removed: it added a schema-introspection query to every request
+   forever, a race condition under concurrent requests before the column
+   existed, and no other content type in this project self-heals its
+   schema at runtime — the standing convention is just "run `php artisan
+   migrate` before deploying," and that's restored here.
+
+**Known outstanding issue from the same collaborator, not yet fixed**:
+that work also committed real image files directly under `public/storage/`
+(not `storage/app/public/`) across a few commits — this happens to look
+fine on a machine where `public/storage` is already a working symlink
+(created by an earlier `php artisan storage:link`), but on a genuinely
+fresh clone, `public/storage` would exist as a real committed directory,
+and `storage:link` refuses to create the symlink over an existing path —
+so any image uploaded *after* that fresh clone would silently 404 forever
+(uploads land in `storage/app/public/`, nothing serves them). Needs a
+deliberate decision before it bites someone: either fix
+`storage/app/.gitignore` to actually track everything under
+`storage/app/public/**` (restoring normal `storage:link` behavior
+everywhere) and delete the duplicated `public/storage/**` copies, or stop
+tracking media in git entirely and transfer it by another means.
+
+**Home's Hero converted from a singleton to an admin-managed carousel.**
+`Hero` (one row, `ManageHero.php`) is gone, replaced by `HeroSlide` — a
+full CRUD list resource (`HeroSlideResource`, same shape as `Testimonial`:
+`order`, `is_published`, `->reorderable('order')` on the table since order
+also decides which slide renders the page's one `<h1>` and gets `priority`
+on its image) — and `HeroCarouselSetting`, a small singleton (`indicator_style`:
+plain hardcoded `Select` with 4 options — circle/dot/dash/plant, not a
+master table, since it's a fixed small set per this project's own
+enum-vs-FK convention; `gradient_overlay`: boolean, global for the whole
+carousel, not per-slide). The one real existing Hero row was carried over
+as slide `order=1` by a dedicated migration
+(`migrate_hero_to_hero_slides`) that also repoints its Spatie `media` row
+(`model_type`/`model_id`) from `Hero` to `HeroSlide` — verified by
+comparing `getFirstMediaUrl()` before/after, not just checking the scalar
+columns copied. `GET /hero` is gone; `GET /hero-slides` and
+`GET /hero-carousel-settings` replace it. Seeded with the real original
+copy as slide 1 plus 5 new slides — 2 shipped with real, unused photos
+from the asset pack (`initiatives_tree_plantation.jpg`,
+`initiatives_environment_intro.jpg`), the other 3 deliberately seeded
+**without** an image (3 candidate asset-pack photos turned out to have
+website-mockup chrome baked into them — same rejected pattern as About's
+hero photo before it — so they were left for a real photo later rather
+than shipped broken); an admin has since uploaded real photos to all
+three directly via `/admin/hero-slides`.
+
 ## What's next
 
 All pages are now built (Home, About, Initiatives, Impact, Gallery, Get

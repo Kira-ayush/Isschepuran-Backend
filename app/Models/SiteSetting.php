@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -30,22 +28,11 @@ class SiteSetting extends Model implements HasMedia
     /**
      * Always fetch (and lazily create) the single settings row — there is
      * only ever one, edited from a Filament settings page, not a list.
+     * Assumes `php artisan migrate` has been run, like every other content
+     * type in this project — no runtime schema patching here.
      */
-    public static function ensureSchema(): void
-    {
-        if (! Schema::hasTable('site_settings') || Schema::hasColumn('site_settings', 'logo_alt')) {
-            return;
-        }
-
-        Schema::table('site_settings', function (Blueprint $table) {
-            $table->string('logo_alt')->nullable()->after('org_name');
-        });
-    }
-
     public static function current(): self
     {
-        static::ensureSchema();
-
         return static::firstOrCreate(['id' => 1], [
             'org_name' => 'Ichhe Puran',
             'logo_alt' => 'Ichhe Puran logo',
