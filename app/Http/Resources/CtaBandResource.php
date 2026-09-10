@@ -16,6 +16,10 @@ class CtaBandResource extends JsonResource
         return [
             'heading' => $this->heading,
             'subheading' => $this->subheading,
+            'background' => $this->getFirstMediaUrl('background') ?: null,
+            'backgroundAlt' => $this->background_alt,
+            'overlay' => (bool) $this->overlay,
+            'textColor' => $this->text_color ?: null,
             'primaryCtaLabel' => $this->primary_cta_label,
             'primaryCtaHref' => $this->primary_cta_href,
             'secondaryCtaLabel' => $this->secondary_cta_label,

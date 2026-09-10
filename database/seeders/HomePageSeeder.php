@@ -9,6 +9,7 @@ use App\Models\HeroSlide;
 use App\Models\HomeVideoHero;
 use App\Models\ImpactStat;
 use App\Models\Initiative;
+use App\Models\Partner;
 use App\Models\SectionHeading;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
@@ -166,6 +167,25 @@ class HomePageSeeder extends Seeder
             'secondary_cta_label' => 'Volunteer',
             'secondary_cta_href' => '/get-involved#volunteer',
         ]);
+
+        // Partners logo wall (Home + About). These are real, named partners
+        // from the client's own marketing material — not invented — so the
+        // names are seeded; an admin just uploads each logo at
+        // /admin/partners. Rows re-created idempotently by name.
+        SectionHeading::forKey('partners-partnership', 'Partners', 'In partnership with');
+        SectionHeading::forKey('partners-implemented-for', 'Partners', 'Project implemented for');
+
+        $partners = [
+            ['name' => 'Grow Billion Trees', 'group' => 'partnership', 'order' => 1],
+            ['name' => 'Tega Industries', 'group' => 'partnership', 'order' => 2],
+            ['name' => 'Calcutta Newbies Rotary Club', 'group' => 'partnership', 'order' => 3],
+            ['name' => 'Calcutta International School', 'group' => 'partnership', 'order' => 4],
+            ['name' => 'Kolkata Knight Riders', 'group' => 'implemented_for', 'order' => 1],
+            ['name' => 'Lions Clubs International', 'group' => 'implemented_for', 'order' => 2],
+        ];
+        foreach ($partners as $p) {
+            Partner::updateOrCreate(['name' => $p['name']], $p);
+        }
 
         SectionHeading::forKey('pillars', 'What we do', 'Our Core Pillars')
             ->update(['eyebrow' => 'What we do', 'heading' => 'Our Core Pillars']);

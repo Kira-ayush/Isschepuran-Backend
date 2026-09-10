@@ -27,6 +27,10 @@ class SectionHeadingController extends Controller
         'donation-methods' => ['eyebrow' => 'Ways to give', 'heading' => 'Choose How to Give'],
         'volunteer' => ['eyebrow' => 'Give your time', 'heading' => 'Volunteer With Us'],
         'csr-partnership' => ['eyebrow' => 'Partner with purpose', 'heading' => 'CSR & Corporate Partnerships'],
+        // Partners logo wall (Home + About) — only `heading` is rendered,
+        // the `eyebrow` is unused for these two.
+        'partners-partnership' => ['eyebrow' => 'Partners', 'heading' => 'In partnership with'],
+        'partners-implemented-for' => ['eyebrow' => 'Partners', 'heading' => 'Project implemented for'],
     ];
 
     // GET /api/v1/section-headings/{key}

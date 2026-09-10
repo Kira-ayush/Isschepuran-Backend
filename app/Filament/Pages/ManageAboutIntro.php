@@ -27,13 +27,17 @@ class ManageAboutIntro extends Page
 
     public function mount(): void
     {
-        $intro = AboutIntro::current();
-        $this->form->model($intro)->fill($intro->toArray());
+        $this->form->fill(AboutIntro::current()->toArray());
     }
 
     public function form(Schema $schema): Schema
     {
-        return $schema->components([
+        // Bind the record on the schema every request so the
+        // SpatieMediaLibraryFileUpload shows the existing image and saves a
+        // new one — see the note in ManageSiteSettings.
+        return $schema
+            ->model(AboutIntro::current())
+            ->components([
             Section::make('Origin Story')
                 ->schema([
                     Forms\Components\TextInput::make('origin_title')->required(),
@@ -63,13 +67,11 @@ class ManageAboutIntro extends Page
 
     public function save(): void
     {
-        $intro = AboutIntro::current();
-
         $state = $this->form->getState();
         unset($state['origin_image']);
-        $intro->update($state);
+        AboutIntro::current()->update($state);
 
-        $this->form->model($intro)->saveRelationships();
+        $this->form->saveRelationships();
 
         Notification::make()
             ->title('About story saved')

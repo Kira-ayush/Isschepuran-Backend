@@ -24,13 +24,17 @@ trait ManagesSeoSettings
 
     public function mount(): void
     {
-        $seo = SeoSetting::forKey($this->seoKey());
-        $this->form->model($seo)->fill($seo->toArray());
+        $this->form->fill(SeoSetting::forKey($this->seoKey())->toArray());
     }
 
     public function form(Schema $schema): Schema
     {
-        return $schema->components([
+        // Bind the record on the schema every request so the OG/Twitter
+        // image upload fields show the existing images and save new ones —
+        // see the note in ManageSiteSettings.
+        return $schema
+            ->model(SeoSetting::forKey($this->seoKey()))
+            ->components([
             Section::make('Search (Google, etc.)')
                 ->description('Falls back to this page\'s normal content-derived title/description whenever left blank.')
                 ->schema([
@@ -80,13 +84,11 @@ trait ManagesSeoSettings
 
     public function save(): void
     {
-        $seo = SeoSetting::forKey($this->seoKey());
-
         $state = $this->form->getState();
         unset($state['og_image'], $state['twitter_image']);
-        $seo->update($state);
+        SeoSetting::forKey($this->seoKey())->update($state);
 
-        $this->form->model($seo)->saveRelationships();
+        $this->form->saveRelationships();
 
         Notification::make()
             ->title('SEO settings saved')

@@ -36,13 +36,17 @@ class ManageHomeVideoHero extends Page
 
     public function mount(): void
     {
-        $record = HomeVideoHero::current();
-        $this->form->model($record)->fill($record->toArray());
+        $this->form->fill(HomeVideoHero::current()->toArray());
     }
 
     public function form(Schema $schema): Schema
     {
-        return $schema->components([
+        // Bind the record on the schema every request so the
+        // SpatieMediaLibraryFileUpload fields show the existing video/poster
+        // and save new ones — see the note in ManageSiteSettings.
+        return $schema
+            ->model(HomeVideoHero::current())
+            ->components([
             Forms\Components\Toggle::make('is_enabled')
                 ->label('Show the video hero section on the Home page')
                 ->helperText('When off, the Home page opens straight into the image carousel as before — nothing else here matters until this is on.'),
@@ -106,13 +110,11 @@ class ManageHomeVideoHero extends Page
 
     public function save(): void
     {
-        $record = HomeVideoHero::current();
-
         $state = $this->form->getState();
         unset($state['video'], $state['poster']);
-        $record->update($state);
+        HomeVideoHero::current()->update($state);
 
-        $this->form->model($record)->saveRelationships();
+        $this->form->saveRelationships();
 
         Notification::make()
             ->title('Video hero section saved')

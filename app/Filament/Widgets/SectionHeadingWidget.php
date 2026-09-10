@@ -44,12 +44,17 @@ class SectionHeadingWidget extends Widget implements HasSchemas
     public function mount(): void
     {
         $record = SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading);
-        $this->form->model($record)->fill($record->only(['eyebrow', 'heading', 'image_alt']));
+        $this->form->fill($record->only(['eyebrow', 'heading', 'image_alt']));
     }
 
     public function form(Schema $schema): Schema
     {
-        return $schema->components([
+        // Bind the record on the schema every request so the optional image
+        // upload shows the existing file and saves a new one — see the note
+        // in ManageSiteSettings.
+        return $schema
+            ->model(SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading))
+            ->components([
             Forms\Components\TextInput::make('eyebrow')->required(),
             Forms\Components\TextInput::make('heading')->required(),
             Forms\Components\SpatieMediaLibraryFileUpload::make('image')
@@ -66,13 +71,11 @@ class SectionHeadingWidget extends Widget implements HasSchemas
 
     public function save(): void
     {
-        $record = SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading);
-
         $state = $this->form->getState();
         unset($state['image']);
-        $record->update($state);
+        SectionHeading::forKey($this->key, $this->defaultEyebrow, $this->defaultHeading)->update($state);
 
-        $this->form->model($record)->saveRelationships();
+        $this->form->saveRelationships();
 
         Notification::make()
             ->title('Section heading saved')

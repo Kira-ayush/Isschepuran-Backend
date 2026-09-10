@@ -554,6 +554,37 @@ When enabled with a headline, the frontend gives this section the page's one
 own `upload_max_filesize`/`post_max_size` must be ≥ that too, or large
 uploads fail before Spatie ever sees them.
 
+**Partners logo wall (Home + About).** `Partner` — a full CRUD resource
+(`PartnerResource`, nav group `null` i.e. site-wide, like `SiteSetting`,
+since it renders on more than one page), `GET /api/v1/partners`. Each row:
+`name`, `group` (fixed 2-value Select — `partnership` / `implemented_for`,
+labelled "In partnership with" / "Project implemented for" via
+`Partner::GROUPS`), `logo` (Spatie), `logo_alt`, `order`, `is_published`.
+The two **row titles** are editable `SectionHeading`s (keys
+`partners-partnership` / `partners-implemented-for`) — two
+`SectionHeadingWidget`s on `ListPartners`; only their `heading` is rendered
+frontend-side, the required `eyebrow` is unused. Distinct from `CsrPartner`
+(the "Our CSR Partners" row inside the Impact page's Corporate Social
+Synergy section) — different framing, different pages. Seeded with the real
+named partners from the client's marketing material (logos left blank for
+an admin to upload).
+
+**CtaBand gained an optional background photo, overlay toggle, and text
+colour.** `CtaBand` now `implements HasMedia` (`background` single-file
+collection) and has `background_alt`, `overlay` (bool, default true), and
+`text_color` (nullable hex, null = white) columns. `ManageCtaBand` binds
+the record on the schema in `form()` (`->model(CtaBand::current())`, like
+core `EditRecord`/`EditProfile`) — the earlier mount-only binding meant
+`saveRelationships()` had no record and uploads silently no-op'd. The text
+colour is a `Radio` of named presets (`CtaBand::TEXT_COLOR_PRESETS`) plus a
+"Custom hex…" option that reveals a `ColorPicker`; `save()` resolves the
+preset key to its hex (the `Radio` is `dehydrated(false)`, read from
+`$this->data`). `CtaBandResource` exposes `background` / `backgroundAlt` /
+`overlay` / `textColor`; `CtaBand.tsx` renders the photo full-bleed with a
+darkening overlay when `overlay` is on, applies `textColor` inline over the
+`text-white` classes, and keeps the plain dark-green band (radial glow)
+when no photo is set.
+
 ## What's next
 
 All pages are now built (Home, About, Initiatives, Impact, Gallery, Get
@@ -576,7 +607,30 @@ endpoints and Razorpay integration). Remaining known gaps, not pages:
 
 ## Hard rule specific to this side: media uploads
 
-Two things, both required, both silently break without the other:
+**Singleton `Page`/`Widget` forms with a `SpatieMediaLibraryFileUpload` must
+bind the record on the schema inside `form()`, not just in `mount()`/`save()`:**
+
+```php
+public function form(Schema $schema): Schema
+{
+    return $schema
+        ->model(SiteSetting::current())   // every request — like core EditRecord
+        ->components([ ... ])
+        ->statePath('data');
+}
+```
+
+`mount()` runs once; on the Livewire `save` request the schema is rebuilt
+from `form()` with no model, so `->model(...)->saveRelationships()` bolted
+on in `save()` isn't enough, and the field also never loads the *existing*
+file (it renders blank even though `getFirstMediaUrl()` works). This bit
+`ManageSiteSettings`, `ManageCtaBand`, `ManageAboutIntro`,
+`ManageHomeVideoHero`, `ManagesSeoSettings`, and `SectionHeadingWidget` —
+all now bind in `form()`, and `save()` is just
+`$this->form->getState()` → `Model::current()->update($state)` →
+`$this->form->saveRelationships()`.
+
+Then, still both required, both silently break without the other:
 
 1. **`->useDisk('public')`** on every `addMediaCollection()` call. Without
    it, uploads land on Laravel's private `local` disk

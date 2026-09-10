@@ -28,13 +28,18 @@ class ManageSiteSettings extends Page
 
     public function mount(): void
     {
-        $settings = SiteSetting::current();
-        $this->form->model($settings)->fill($settings->toArray());
+        $this->form->fill(SiteSetting::current()->toArray());
     }
 
     public function form(Schema $schema): Schema
     {
-        return $schema->components([
+        // Bind the record on the schema every request (not just in mount) —
+        // this is what core EditRecord does, and it's what makes the
+        // SpatieMediaLibraryFileUpload both SHOW the existing file and SAVE
+        // a new one. Binding only in mount()/save() left the field blank.
+        return $schema
+            ->model(SiteSetting::current())
+            ->components([
             Section::make('Branding')
                 ->schema([
                     Forms\Components\SpatieMediaLibraryFileUpload::make('logo')
@@ -51,7 +56,13 @@ class ManageSiteSettings extends Page
 
             Section::make('Contact')
                 ->schema([
-                    Forms\Components\TextInput::make('phone')->tel()->required(),
+                    // Plain text, not ->tel() — it's displayed as-is on the
+                    // site (not a tel: link), and the client lists more than
+                    // one number, e.g. "+91 9147708511 | +91 8902339686",
+                    // which the tel() format rule rejects.
+                    Forms\Components\TextInput::make('phone')
+                        ->required()
+                        ->helperText('Shown in the footer and on the contact page. Separate multiple numbers with " | ".'),
                     Forms\Components\TextInput::make('email')->email()->required(),
                     Forms\Components\Textarea::make('address')->required()->rows(2),
                 ]),
@@ -85,12 +96,11 @@ class ManageSiteSettings extends Page
 
     public function save(): void
     {
-        $settings = SiteSetting::current();
         $state = $this->form->getState();
 
         unset($state['logo']);
-        $settings->update($state);
-        $this->form->model($settings)->saveRelationships();
+        SiteSetting::current()->update($state);
+        $this->form->saveRelationships();
 
         Notification::make()
             ->title('Site settings saved')

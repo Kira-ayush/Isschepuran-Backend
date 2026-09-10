@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\InitiativeController;
 use App\Http\Controllers\Api\InitiativesHeroController;
 use App\Http\Controllers\Api\LegalPageController;
 use App\Http\Controllers\Api\NewsletterSubscriberController;
+use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\PillarController;
 use App\Http\Controllers\Api\RazorpayWebhookController;
 use App\Http\Controllers\Api\SdgAlignmentController;
@@ -61,6 +62,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/seo-settings/{key}', [SeoSettingController::class, 'show']);
     Route::get('/legal-pages', [LegalPageController::class, 'index']);
     Route::get('/legal-pages/{slug}', [LegalPageController::class, 'show']);
+    Route::get('/partners', [PartnerController::class, 'index']); // logo wall — renders on Home + About
 
     // About page
     Route::get('/about-hero', [AboutHeroController::class, 'show']);
