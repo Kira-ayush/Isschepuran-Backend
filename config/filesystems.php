@@ -40,7 +40,11 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            // This project commits its uploaded media directly under
+            // public/storage/ (not gitignored, no storage:link symlink), so
+            // the public disk must write there — otherwise Filament/Spatie
+            // uploads land in storage/app/public/ and 404 when served.
+            'root' => public_path('storage'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
