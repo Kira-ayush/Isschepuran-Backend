@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\CtaBand;
 use App\Models\HeroCarouselSetting;
 use App\Models\HeroSlide;
+use App\Models\HomeVideoHero;
 use App\Models\ImpactStat;
 use App\Models\Initiative;
 use App\Models\SectionHeading;
@@ -38,6 +39,21 @@ class HomePageSeeder extends Seeder
         HeroCarouselSetting::current()->update([
             'indicator_style' => 'dot',
             'gradient_overlay' => true,
+        ]);
+
+        // Optional full-bleed video band above the carousel. Seeded with
+        // drafted copy (no source doc — mirrors the reference site's own
+        // wording) but is_enabled = false: it renders nothing until an
+        // admin uploads a video and turns it on from /admin/home-video-hero.
+        HomeVideoHero::current()->update([
+            'is_enabled' => false,
+            'eyebrow' => 'Our Mission',
+            'headline' => 'Planting Joy, Nurturing Hope, Growing Futures',
+            'subheading' => 'Empowering communities and restoring nature, one initiative at a time.',
+            'overlay' => true,
+            'cta1_label' => 'Get Involved', 'cta1_href' => '/get-involved',
+            'cta2_label' => 'Donate', 'cta2_href' => '/get-involved#donate',
+            'cta3_label' => 'Explore our Programs', 'cta3_href' => '/initiatives',
         ]);
 
         // Slide 1 is the original, real Hero content, unchanged — its

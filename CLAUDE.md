@@ -537,6 +537,23 @@ hero photo before it — so they were left for a real photo later rather
 than shipped broken); an admin has since uploaded real photos to all
 three directly via `/admin/hero-slides`.
 
+**Optional video hero band above the Home carousel.** `HomeVideoHero` —
+singleton (`ManageHomeVideoHero.php`, nav "Home Page › Video Hero Section",
+`GET /api/v1/home-video-hero`) for a full-bleed autoplaying background video
+with a text + up-to-3-button overlay, rendered by the frontend *above* the
+`HeroSlide` carousel. `is_enabled` is a master toggle — ships **false**
+(seeded disabled), so it's invisible until an admin uploads a video and
+turns it on. Video source is either an uploaded file (`video` Spatie
+collection) or an external URL (`video_url`, used only when no file); poster
+image via the `poster` collection. CTAs are 3 fixed `ctaN_label`/`ctaN_href`
+column pairs, filtered in `HomeVideoHeroResource` to only complete pairs.
+When enabled with a headline, the frontend gives this section the page's one
+`<h1>` and steps the carousel's first slide down to `<p>`.
+`config/media-library.php` was published and its `max_file_size` raised from
+10 MB to **200 MB** for the video — note that on the production server PHP's
+own `upload_max_filesize`/`post_max_size` must be ≥ that too, or large
+uploads fail before Spatie ever sees them.
+
 ## What's next
 
 All pages are now built (Home, About, Initiatives, Impact, Gallery, Get

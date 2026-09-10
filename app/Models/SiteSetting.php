@@ -40,6 +40,9 @@ class SiteSetting extends Model implements HasMedia
             'phone' => '',
             'email' => '',
             'address' => '',
+            // Frontend's SiteSettings type requires a string and its Navbar
+            // renders this straight into a <Link href> — never leave it null.
+            'donate_href' => '/get-involved#donate',
             'nav_links' => [
                 ['label' => 'Home', 'href' => '/'],
                 ['label' => 'About', 'href' => '/about'],
