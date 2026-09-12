@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContactHero extends Model
 {
-    protected $fillable = ['headline', 'subheading'];
+    protected $fillable = ['headline', 'subheading', 'background_image', 'text_alignment', 'show_glassmorphism_button'];
 
     /**
      * No source hero copy exists for this page in docs/raw-site-content.md

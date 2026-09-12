@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ImpactHero extends Model
 {
-    protected $fillable = ['headline', 'subheading'];
+    protected $fillable = ['headline', 'subheading', 'background_image', 'text_alignment', 'show_glassmorphism_button'];
 
     /**
      * Always fetch (and lazily create) the single Impact hero row.

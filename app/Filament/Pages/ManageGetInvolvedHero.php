@@ -30,6 +30,18 @@ class ManageGetInvolvedHero extends Page
         return $schema->components([
             Forms\Components\TextInput::make('headline')->required(),
             Forms\Components\Textarea::make('subheading')->required()->rows(3),
+            Forms\Components\FileUpload::make('background_image')->image()->directory('heroes')->disk('public'),
+            Forms\Components\Select::make('text_alignment')
+                ->options([
+                    'left' => 'Left',
+                    'center' => 'Center',
+                    'right' => 'Right',
+                ])
+                ->default('center')
+                ->required(),
+            Forms\Components\Toggle::make('show_glassmorphism_button')
+                ->label('Show Glassmorphism Toggle Button')
+                ->default(true),
         ])->statePath('data');
     }
 
